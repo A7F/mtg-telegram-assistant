@@ -1,0 +1,10 @@
+{
+  "token": "",
+  "master": [0],
+  "locale": "EN",
+  "database": {
+    "path": "./bot_database.db",
+    "username": "",
+    "password":""
+  }
+}
