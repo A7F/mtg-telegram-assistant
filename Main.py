@@ -18,7 +18,7 @@ from emoji import emojize
 from telegram.ext import Updater, InlineQueryHandler
 from telegram.ext import MessageHandler, CommandHandler, Filters
 
-with open('Config/config.json') as f:
+with open('config/config.json') as f:
     config = json.load(f)
 
 db = SqliteDatabase(config["database"]["path"])
