@@ -1,10 +1,11 @@
 ## What can this bot do?
-- get cards and pricing via scryfall
-- get card rulings and legalities
+Up to now, this bot can:
+- get cards via Scryfall
+- get card rulings, pricing and legalities
 - stores DCI numbers for each player
 - stores MTG:Arena username to challenge your friends
 
-## Dependencies
+## Bot dependencies
 This bot runs with:
 
 - peewee (a database ORM)
@@ -13,25 +14,21 @@ This bot runs with:
 - emoji (because emojis makes messages waay more fancy!)
 
 ### installing dependencies
-If you already have python 3.6 and git installed, start from point 3
+If you already have python 3.6 and git installed, start from point 4
 
 Step 1: install git 
 
 `sudo apt-get install git`
 
-Step 2: install python 3.6
+Step 2: install python 3.6 and aiohttp dependencies
 
-`sudo apt-get install python3.6 -y`
-
-Step 3: also install these packages:
-
-`sudo apt-get install build-essential libssl-dev libffi-dev`
+`sudo apt-get install python3.6 build-essential libssl-dev libffi-dev python3-dev -y`
 
 Step 4: clone this repo 
 
 `git clone https://github.com/A7F/mtg-telegram-assistant.git`
 
-Step 5: install python dependencies with pip
+Step 5: install bot dependencies with pip
 
 `cd mtg-telegram-assistant/config && pip install -r requirements.txt`
 
@@ -42,6 +39,17 @@ Step 5: install python dependencies with pip
 4. add the bot to your LGS telegram group
 5. turn off bot "can be added to groups" setting
 6. start the bot
+
+### Make it fancy
+In order to improve user's experience, you may want to set your bot command list via botfather by copy-paste the following:
+```
+start - start this bot or get your telegram ID
+help - how do I use this bot?
+dci - set your dci number
+name - set your name
+arena - set your Arena nickname
+leaderboard - get the leaderboard
+```
 
 ## Further improvements
 - handle FNM subscriptions
@@ -55,7 +63,20 @@ the following improvements are supposed to be implemented by integrating a Flask
 - event creation
 - match tracker for every single event
 
+I can't provide any ETA because I'm working on this project during my free time
+
 ## Documentation
 I will provide in-detailed documentation in the wiki section, along with usage description and so on.
 Because the bot is still a work in progress, implementing docs in such an early stage just makes no sense at all: the code
 is still open to changes in almost everything. 
+
+### Commands implemented
+| command | description | usage |
+| ------- | ----------- | ----- |
+| start | start the bot or get your telegram ID | `/start` |
+| help | commands explainations | `/help` |
+| dci | set current user dci number | `/dci` 12345678 |
+| name | set current user name | `/name` John |
+| arena | set current user MTG:Arena nickname | `/arena` Joy#17 |
+| [[card]] | search a card | [[rift bolt]] |
+| ((card)) | search card rulings | ((rift bolt)) |
