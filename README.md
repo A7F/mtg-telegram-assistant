@@ -2,8 +2,8 @@
 Up to now, this bot can:
 - get cards via Scryfall
 - get card rulings, pricing and legalities
-- stores DCI numbers for each player
-- stores MTG:Arena username to challenge your friends
+- store DCI numbers for each player
+- store MTG:Arena usernames to challenge your friends
 
 ## Bot dependencies
 This bot runs with:
@@ -56,12 +56,13 @@ leaderboard - get the leaderboard
 - auto sync with your LGS events posted on facebook
 - auto fetch DCI planeswalker points
 - language localisation
+- windows app with UI, in case someone doesn't own a server
 
-the following improvements are supposed to be implemented by integrating a Flask server in the bot:
+the following improvements are supposed to be implemented with Flask:
 
 - internal leaderboard to handle tournaments
 - event creation
-- match tracker for every single event
+- match tracker for each event
 
 I can't provide any ETA because I'm working on this project during my free time
 
