@@ -43,5 +43,8 @@ class Log:
     database_ready = "database found"
     database_ok = "database generated."
 
-
+class Inline:
+    player_card_text = "Hello {}!\n*telegram ID:* {}\n*DCI number:* {}\n*Arena nickname:* {}"
+    player_card_desc = "your player card: dci, arena nickname..."
+    player_card_title = "Player card"
 

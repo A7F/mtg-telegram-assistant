@@ -184,19 +184,18 @@ def inline(bot, update):
     query = update.inline_query.query
     try:
         user = Tables.User.get(Tables.User.user_id == update.inline_query.from_user.id)
-        text = "Hello {}!\n*telegram ID:* {}\n*DCI number:* {}\n*Arena nickname:* {}".format(user.name if not None else "",
-                                                                                             user.user_id,
-                                                                                             user.dci if not None else "",
-                                                                                             user.arena if not None else "")
+        text = Strings.Inline.player_card_text.format(user.name if not None else "", user.user_id,
+                                                      user.dci if not None else "",
+                                                      user.arena if not None else "")
     except DoesNotExist:
-        text = "Please start this bot in your LGS group to get your player infos"
+        text = Strings.Global.user_not_exist
 
     results = list()
     results.append(
         InlineQueryResultArticle(
             id="PLAYERCARD",
-            title="Player card",
-            description="your player card: dci, arena nickname...",
+            title=Strings.Inline.player_card_title,
+            description=Strings.Inline.player_card_desc,
             input_message_content=InputTextMessageContent(text, parse_mode=telegram.ParseMode.MARKDOWN)
         )
     )
