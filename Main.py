@@ -120,12 +120,12 @@ def cards(bot, update):
             bot.send_message(chat_id=update.message.chat_id, text=Strings.Card.card_not_found.format(name))
             continue
         not_legal = [k for k, v in card.legalities().items() if v == "not_legal"]
-        legalities = ""
+        legal_in = ""
         if len(not_legal) == 0:
-            legalities = Strings.Card.card_legal
+            legal_in = Strings.Card.card_legal
         else:
             for v in not_legal:
-                legalities += v + " "
+                legal_in += v + " "
         try:
             eur = card.currency(mode="eur") + "€"
         except KeyError:
@@ -134,15 +134,17 @@ def cards(bot, update):
             usd = card.currency(mode="usd") + "$"
         except KeyError:
             usd = Strings.Card.card_unavailable
-        try:
-            tix = card.currency(mode="tix") + "Tix"
-        except KeyError:
-            tix = Strings.Card.card_unavailable
-        img_caption = emojize(":moneybag: [" + eur + "]" + "(" + card.purchase_uris().get("magiccardmarket") + ")"
-                              + " | [" + usd + "]" + "(" + card.purchase_uris().get("tcgplayer") + ")"
-                              + " | [" + tix + "]" + "(" + card.purchase_uris().get("mtgo_traders") + ")" + "\n"
-                              + ":no_entry: " + legalities,
-                              use_aliases=True)
+
+        usd_link = card.purchase_uris().get("tcgplayer")
+        eur_link = card.purchase_uris().get("magiccardmarket")
+        if eur_link is None:
+            eur_link = "www.mtgcardmarket.com"
+        if usd_link is None:
+            usd_link = "www.tcgplayer.com"
+
+        img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
+                              + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
+                              + ":no_entry: "+legal_in, use_aliases=True)
         bot.send_chat_action(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
         bot.send_photo(chat_id=update.message.chat_id, photo=card.image_uris(0, image_type="normal"),
                        caption=img_caption, parse_mode=telegram.ParseMode.MARKDOWN,

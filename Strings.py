@@ -1,5 +1,5 @@
 class Global:
-    user_not_exist = "you don't exist in my database. Start me in your LGS group"
+    user_not_exist = "you don't exist in my database. Start me in your LGS group\n"
     user_already_exist = "you already exist in my database"
     welcome = "welcome :)"
 
