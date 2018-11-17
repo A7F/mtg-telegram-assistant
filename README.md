@@ -33,15 +33,15 @@ Step 4: clone this repo
 
 Step 5: install python dependencies with pip
 
-`cd config && pip install -r requirements.txt`
+`cd mtg-telegram-assistant/config && pip install -r requirements.txt`
 
 ## Quickstart
-5. open telegram and generate a token with botfather 
-6. edit file config/config.json with your favourite text editor
-7. turn off bot privacy setting
-8. add the bot to your LGS telegram group
-9. turn off bot "can be added to groups" setting
-10. start the bot
+1. open telegram and generate a token with botfather 
+2. edit file config/config.json with your favourite text editor
+3. turn off bot privacy setting
+4. add the bot to your LGS telegram group
+5. turn off bot "can be added to groups" setting
+6. start the bot
 
 ## Further improvements
 - handle FNM subscriptions
