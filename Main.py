@@ -62,7 +62,7 @@ def start_group(bot, update):
 
 def dci(bot, update):
     args = update.message.text.split(" ")
-    if len(args) == 0:
+    if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id, text=Strings.Dci.dci_invalid)
     else:
         dci = args[1]
@@ -78,7 +78,7 @@ def dci(bot, update):
 
 def name(bot, update):
     args = update.message.text.split(" ")
-    if len(args) == 0:
+    if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id, text=Strings.Name.name_invalid)
     else:
         name = args[1]
@@ -94,7 +94,7 @@ def name(bot, update):
 
 def arena(bot, update):
     args = update.message.text.split(" ")
-    if len(args) == 0:
+    if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id, text=Strings.Arena.arena_invalid)
     else:
         arena = args[1]
