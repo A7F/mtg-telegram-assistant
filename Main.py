@@ -3,22 +3,19 @@
 # http://docs.peewee-orm.com/en/latest/peewee/quickstart.html
 # https://python-telegram-bot.readthedocs.io/en/stable/telegram.user.html#telegram.User
 
-import logging
-import json
-import telegram
+import logging, json, telegram, Tables, scrython, re, asyncio, time, Strings
 from telegram import InlineQueryResultArticle, InputTextMessageContent
-import Tables
-import scrython
-import re
-import asyncio
-import time
-import Strings
+from mwt import MWT
+from functools import wraps
+from telegram import ChatAction
 from peewee import *
 from emoji import emojize
 from telegram.ext import Updater, InlineQueryHandler
 from telegram.ext import MessageHandler, CommandHandler, Filters
 
-with open('config/config.json') as f:
+
+with open('config/config.json', "r+") as f:
+    f.seek(0)
     config = json.load(f)
 
 db = SqliteDatabase(config["database"]["path"])
@@ -39,6 +36,31 @@ finally:
     db.connect()
 
 
+# Returns a list of admin IDs for a given chat. Results are cached for 15 min.
+@MWT(timeout=60*15)
+def get_admin_ids(bot, chat_id=None):
+    if chat_id is None:
+        ids = config["master"]
+    else:
+        ids = [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
+        with open('config/config.json', "r+") as f:
+            config["master"] = ids
+            json.dump(config, f, indent=4)
+    return ids
+
+
+def send_action(action):
+    """Sends `action` while processing func command."""
+    def decorator(func):
+        @wraps(func)
+        def command_func(*args, **kwargs):
+            bot, update = args
+            bot.send_chat_action(chat_id=update.message.chat_id, action=action)
+            func(bot, update, **kwargs)
+        return command_func
+    return decorator
+
+
 def start_pvt(bot, update):
     try:
         user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
@@ -47,67 +69,87 @@ def start_pvt(bot, update):
         text = Strings.Global.user_not_exist
     finally:
         text += Strings.Start.start_id.format(update.message.from_user.id)
-        bot.send_message(chat_id=update.message.chat_id, text=text)
+        bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def start_group(bot, update):
+    get_admin_ids(bot, update.message.chat_id)
     try:
         user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
         bot.send_message(chat_id=update.message.chat_id, text=Strings.Global.user_already_exist)
     except DoesNotExist:
         member = Tables.User.create(user_id=update.message.from_user.id, group=update.message.chat_id,
                                     name=update.message.from_user.first_name)
-        bot.send_message(chat_id=update.message.chat_id, text=Strings.Global.welcome)
+        bot.send_message(chat_id=update.message.chat_id, text=Strings.Global.welcome, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@send_action(ChatAction.TYPING)
 def dci(bot, update):
     args = update.message.text.split(" ")
     if len(args) == 1:
-        bot.send_message(chat_id=update.message.chat_id, text=Strings.Dci.dci_invalid)
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=Strings.Dci.dci_invalid,
+                         parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         dci = args[1]
         try:
             user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
             user.dci = dci
             user.save()
-            bot.send_message(chat_id=update.message.chat_id, text=Strings.Dci.dci_set.format(dci))
+            bot.send_message(chat_id=update.message.chat_id,
+                             text=Strings.Dci.dci_set.format(dci),
+                             parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Global.user_not_exist)
+                             text=Strings.Global.user_not_exist,
+                             parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@send_action(ChatAction.TYPING)
 def name(bot, update):
     args = update.message.text.split(" ")
     if len(args) == 1:
-        bot.send_message(chat_id=update.message.chat_id, text=Strings.Name.name_invalid)
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=Strings.Name.name_invalid,
+                         parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         name = args[1]
         try:
             user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
             user.name = name
             user.save()
-            bot.send_message(chat_id=update.message.chat_id, text=Strings.Name.name_set.format(name))
+            bot.send_message(chat_id=update.message.chat_id,
+                             text=Strings.Name.name_set.format(name),
+                             parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Global.user_not_exist)
+                             text=Strings.Global.user_not_exist,
+                             parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@send_action(ChatAction.TYPING)
 def arena(bot, update):
     args = update.message.text.split(" ")
     if len(args) == 1:
-        bot.send_message(chat_id=update.message.chat_id, text=Strings.Arena.arena_invalid)
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=Strings.Arena.arena_invalid,
+                         parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         arena = args[1]
         try:
             user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
             user.arena = arena
             user.save()
-            bot.send_message(chat_id=update.message.chat_id, text=Strings.Arena.arena_set.format(arena))
+            bot.send_message(chat_id=update.message.chat_id,
+                             text=Strings.Arena.arena_set.format(arena),
+                             parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Global.user_not_exist)
+                             text=Strings.Global.user_not_exist,
+                             parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@send_action(ChatAction.UPLOAD_PHOTO)
 def cards(bot, update):
     match = re.findall(r'\[\[(.*?)\]\]', update.message.text)
     asyncio.set_event_loop(asyncio.new_event_loop())
@@ -117,7 +159,9 @@ def cards(bot, update):
         try:
             card = scrython.cards.Named(fuzzy=name)
         except Exception:
-            bot.send_message(chat_id=update.message.chat_id, text=Strings.Card.card_not_found.format(name))
+            bot.send_message(chat_id=update.message.chat_id,
+                             text=Strings.Card.card_not_found.format(name),
+                             parse_mode=telegram.ParseMode.MARKDOWN)
             continue
         not_legal = [k for k, v in card.legalities().items() if v == "not_legal"]
         legal_in = ""
@@ -145,13 +189,13 @@ def cards(bot, update):
         img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
                               + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
                               + ":no_entry: "+legal_in, use_aliases=True)
-        bot.send_chat_action(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
         bot.send_photo(chat_id=update.message.chat_id, photo=card.image_uris(0, image_type="normal"),
                        caption=img_caption, parse_mode=telegram.ParseMode.MARKDOWN,
                        reply_to_message_id=update.message.message_id)
-        time.sleep(0.06)
+        time.sleep(0.04)
 
 
+@send_action(ChatAction.TYPING)
 def rulings(bot, update):
     match = re.findall(r'\(\((.*?)\)\)', update.message.text)
     asyncio.set_event_loop(asyncio.new_event_loop())
@@ -162,7 +206,9 @@ def rulings(bot, update):
         try:
             card = scrython.cards.Named(fuzzy=name)
         except Exception:
-            bot.send_message(chat_id=update.message.chat_id, text=Strings.Card.card_not_found.format(name))
+            bot.send_message(chat_id=update.message.chat_id,
+                             text=Strings.Card.card_not_found.format(name),
+                             parse_mode=telegram.ParseMode.MARKDOWN)
             continue
         rule = scrython.rulings.Id(id=card.id())
         bot.send_chat_action(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
@@ -176,8 +222,15 @@ def rulings(bot, update):
         time.sleep(0.07)
 
 
+@send_action(ChatAction.TYPING)
 def help(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text=emojize(Strings.Help.user_help, use_aliases=True))
+    if update.message.from_user.id in get_admin_ids(bot):
+        text = Strings.Help.admin_help
+    else:
+        text = Strings.Help.user_help
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=emojize(text, use_aliases=True),
+                     parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def inline(bot, update):
