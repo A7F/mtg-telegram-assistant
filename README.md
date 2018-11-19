@@ -8,10 +8,10 @@ Up to now, this bot can:
 ## Bot dependencies
 This bot runs with:
 
-- peewee (a database ORM)
-- python-telegram-bot (of course)
-- scrython (python bindings to Scryfall API)
-- emoji (because emojis makes messages waay more fancy!)
+- [peewee](https://github.com/coleifer/peewee) (a database ORM)
+- [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) (of course)
+- [scrython](https://github.com/NandaScott/Scrython) (python bindings to Scryfall API)
+- [emoji](https://github.com/carpedm20/emoji) (because emojis makes messages waay more fancy!)
 
 ### installing dependencies
 If you already have python 3.6 and git installed, start from point 4
