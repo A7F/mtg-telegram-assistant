@@ -3,14 +3,12 @@
 # http://docs.peewee-orm.com/en/latest/peewee/quickstart.html
 # https://python-telegram-bot.readthedocs.io/en/stable/telegram.user.html#telegram.User
 
-import logging, json, telegram, Tables, scrython, re, asyncio, time, Strings
-from telegram import InlineQueryResultArticle, InputTextMessageContent
-from mwt import MWT
-from functools import wraps
+import logging, json, telegram, tables, scrython, re, asyncio, time, strings, util
+from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import ChatAction
 from peewee import *
 from emoji import emojize
-from telegram.ext import Updater, InlineQueryHandler
+from telegram.ext import Updater, InlineQueryHandler, CallbackQueryHandler
 from telegram.ext import MessageHandler, CommandHandler, Filters
 
 
@@ -27,129 +25,104 @@ max_cards = 4
 
 try:
     open(config["database"]["path"])
-    logging.info(Strings.Log.database_ready)
+    logging.info(strings.Log.database_ready)
 except FileNotFoundError:
-    logging.info(Strings.Log.database_not_found)
-    db.create_tables([Tables.User, Tables.Event, Tables.Round])
-    logging.log(logging.INFO, Strings.Log.database_ok)
+    logging.info(strings.Log.database_not_found)
+    db.create_tables([tables.User, tables.Event, tables.Round])
+    logging.log(logging.INFO, strings.Log.database_ok)
 finally:
     db.connect()
 
 
-# Returns a list of admin IDs for a given chat. Results are cached for 15 min.
-@MWT(timeout=60*15)
-def get_admin_ids(bot, chat_id=None):
-    if chat_id is None:
-        ids = config["master"]
-    else:
-        ids = [admin.user.id for admin in bot.get_chat_administrators(chat_id)]
-        with open('config/config.json', "r+") as f:
-            config["master"] = ids
-            json.dump(config, f, indent=4)
-    return ids
-
-
-def send_action(action):
-    """Sends `action` while processing func command."""
-    def decorator(func):
-        @wraps(func)
-        def command_func(*args, **kwargs):
-            bot, update = args
-            bot.send_chat_action(chat_id=update.message.chat_id, action=action)
-            func(bot, update, **kwargs)
-        return command_func
-    return decorator
-
-
 def start_pvt(bot, update):
     try:
-        user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
-        text = Strings.Start.start_pvt
+        user = tables.User.get(tables.User.user_id == update.message.from_user.id)
+        text = strings.Start.start_pvt
     except DoesNotExist:
-        text = Strings.Global.user_not_exist
+        text = strings.Global.user_not_exist
     finally:
-        text += Strings.Start.start_id.format(update.message.from_user.id)
+        text += strings.Start.start_id.format(update.message.from_user.id)
         bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def start_group(bot, update):
-    get_admin_ids(bot, update.message.chat_id)
+    util.get_admin_ids(bot, update.message.chat_id)
     try:
-        user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
-        bot.send_message(chat_id=update.message.chat_id, text=Strings.Global.user_already_exist)
+        user = tables.User.get(tables.User.user_id == update.message.from_user.id)
+        bot.send_message(chat_id=update.message.chat_id, text=strings.Global.user_already_exist)
     except DoesNotExist:
-        member = Tables.User.create(user_id=update.message.from_user.id, group=update.message.chat_id,
+        member = tables.User.create(user_id=update.message.from_user.id, group=update.message.chat_id,
                                     name=update.message.from_user.first_name)
-        bot.send_message(chat_id=update.message.chat_id, text=Strings.Global.welcome, parse_mode=telegram.ParseMode.MARKDOWN)
+        bot.send_message(chat_id=update.message.chat_id, text=strings.Global.welcome, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-@send_action(ChatAction.TYPING)
+@util.send_action(ChatAction.TYPING)
 def dci(bot, update):
     args = update.message.text.split(" ")
     if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id,
-                         text=Strings.Dci.dci_invalid,
+                         text=strings.Dci.dci_invalid,
                          parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         dci = args[1]
         try:
-            user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
+            user = tables.User.get(tables.User.user_id == update.message.from_user.id)
             user.dci = dci
             user.save()
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Dci.dci_set.format(dci),
+                             text=strings.Dci.dci_set.format(dci),
                              parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Global.user_not_exist,
+                             text=strings.Global.user_not_exist,
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-@send_action(ChatAction.TYPING)
+@util.send_action(ChatAction.TYPING)
 def name(bot, update):
     args = update.message.text.split(" ")
     if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id,
-                         text=Strings.Name.name_invalid,
+                         text=strings.Name.name_invalid,
                          parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         name = args[1]
         try:
-            user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
+            user = tables.User.get(tables.User.user_id == update.message.from_user.id)
             user.name = name
             user.save()
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Name.name_set.format(name),
+                             text=strings.Name.name_set.format(name),
                              parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Global.user_not_exist,
+                             text=strings.Global.user_not_exist,
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-@send_action(ChatAction.TYPING)
+@util.send_action(ChatAction.TYPING)
 def arena(bot, update):
     args = update.message.text.split(" ")
     if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id,
-                         text=Strings.Arena.arena_invalid,
+                         text=strings.Arena.arena_invalid,
                          parse_mode=telegram.ParseMode.MARKDOWN)
     else:
         arena = args[1]
         try:
-            user = Tables.User.get(Tables.User.user_id == update.message.from_user.id)
+            user = tables.User.get(tables.User.user_id == update.message.from_user.id)
             user.arena = arena
             user.save()
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Arena.arena_set.format(arena),
+                             text=strings.Arena.arena_set.format(arena),
                              parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Global.user_not_exist,
+                             text=strings.Global.user_not_exist,
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-@send_action(ChatAction.UPLOAD_PHOTO)
+@util.send_action(ChatAction.UPLOAD_PHOTO)
 def cards(bot, update):
     match = re.findall(r'\[\[(.*?)\]\]', update.message.text)
     asyncio.set_event_loop(asyncio.new_event_loop())
@@ -160,24 +133,24 @@ def cards(bot, update):
             card = scrython.cards.Named(fuzzy=name)
         except Exception:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Card.card_not_found.format(name),
+                             text=strings.Card.card_not_found.format(name),
                              parse_mode=telegram.ParseMode.MARKDOWN)
             continue
         not_legal = [k for k, v in card.legalities().items() if v == "not_legal"]
         legal_in = ""
         if len(not_legal) == 0:
-            legal_in = Strings.Card.card_legal
+            legal_in = strings.Card.card_legal
         else:
             for v in not_legal:
                 legal_in += v + " "
         try:
             eur = card.currency(mode="eur") + "€"
         except KeyError:
-            eur = Strings.Card.card_unavailable
+            eur = strings.Card.card_unavailable
         try:
             usd = card.currency(mode="usd") + "$"
         except KeyError:
-            usd = Strings.Card.card_unavailable
+            usd = strings.Card.card_unavailable
 
         usd_link = card.purchase_uris().get("tcgplayer")
         eur_link = card.purchase_uris().get("magiccardmarket")
@@ -195,7 +168,7 @@ def cards(bot, update):
         time.sleep(0.04)
 
 
-@send_action(ChatAction.TYPING)
+@util.send_action(ChatAction.TYPING)
 def rulings(bot, update):
     match = re.findall(r'\(\((.*?)\)\)', update.message.text)
     asyncio.set_event_loop(asyncio.new_event_loop())
@@ -207,14 +180,14 @@ def rulings(bot, update):
             card = scrython.cards.Named(fuzzy=name)
         except Exception:
             bot.send_message(chat_id=update.message.chat_id,
-                             text=Strings.Card.card_not_found.format(name),
+                             text=strings.Card.card_not_found.format(name),
                              parse_mode=telegram.ParseMode.MARKDOWN)
             continue
         rule = scrython.rulings.Id(id=card.id())
         bot.send_chat_action(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
         message = ""
         if rule.data_length() == 0:
-            message = Strings.Card.card_ruling_unavailable
+            message = strings.Card.card_ruling_unavailable
         else:
             for index, rule_text in enumerate(rule.data()):
                 message += (str(index + 1) + ". " + rule.data(index=index, key="comment") + "\n\n")
@@ -222,58 +195,73 @@ def rulings(bot, update):
         time.sleep(0.07)
 
 
-@send_action(ChatAction.TYPING)
-def help(bot, update):
-    if update.message.from_user.id in get_admin_ids(bot):
-        text = Strings.Help.admin_help
+@util.send_action(ChatAction.TYPING)
+def help_pvt(bot, update):
+    if update.message.from_user.id in util.get_admin_ids(bot):
+        button_list = [InlineKeyboardButton("user", callback_data="help_user"),
+                       InlineKeyboardButton("admin", callback_data="help_admin")]
+        reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=2))
+        text = strings.Help.admin_help
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=emojize(text, use_aliases=True),
+                         parse_mode=telegram.ParseMode.MARKDOWN,
+                         reply_markup=reply_markup)
     else:
-        text = Strings.Help.user_help
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=emojize(text, use_aliases=True),
-                     parse_mode=telegram.ParseMode.MARKDOWN)
+        text = strings.Help.user_help
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=emojize(text, use_aliases=True),
+                         parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def help_cb(bot, update):
+    query = update.callback_query
+    button_list = [InlineKeyboardButton("user", callback_data="help_user"),
+                   InlineKeyboardButton("admin", callback_data="help_admin")]
+    reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=2))
+    if "help_user" in query.data:
+        reply = strings.Help.user_help
+        pass
+    else:
+        reply = strings.Help.admin_help
+        pass
+    try:
+        bot.edit_message_text(text=reply, chat_id=query.message.chat_id,
+                              message_id=query.message.message_id, reply_markup=reply_markup)
+    except telegram.error.BadRequest:
+        bot.answer_callback_query(callback_query_id=update.callback_query.id)
 
 
 def inline(bot, update):
     query = update.inline_query.query
     try:
-        user = Tables.User.get(Tables.User.user_id == update.inline_query.from_user.id)
-        text = Strings.Inline.player_card_text.format(user.name if not None else "", user.user_id,
+        user = tables.User.get(tables.User.user_id == update.inline_query.from_user.id)
+        text = strings.Inline.player_card_text.format(user.name if not None else "", user.user_id,
                                                       user.dci if not None else "",
                                                       user.arena if not None else "")
     except DoesNotExist:
-        text = Strings.Global.user_not_exist
+        text = strings.Global.user_not_exist
 
     results = list()
     results.append(
         InlineQueryResultArticle(
             id="PLAYERCARD",
-            title=Strings.Inline.player_card_title,
-            description=Strings.Inline.player_card_desc,
+            title=strings.Inline.player_card_title,
+            description=strings.Inline.player_card_desc,
             input_message_content=InputTextMessageContent(text, parse_mode=telegram.ParseMode.MARKDOWN)
         )
     )
     bot.answer_inline_query(update.inline_query.id, results)
 
 
-start_pvt_handler = CommandHandler('start', callback=start_pvt, filters=Filters.private)
-start_group_handler = CommandHandler('start', callback=start_group, filters=Filters.group)
-dci_handler = CommandHandler('dci', callback=dci, filters=Filters.private)
-arena_handler = CommandHandler('arena', callback=arena, filters=Filters.private)
-name_handler = CommandHandler('name', callback=name, filters=Filters.private)
-card_handler = MessageHandler(Filters.regex('\[\[(.*?)\]\]'), cards)
-rulings_handler = MessageHandler(Filters.regex('\(\((.*?)\)\)'), rulings)
-
-help_handler = CommandHandler('help', help)
-inline_handler = InlineQueryHandler(inline)
-
-dispatcher.add_handler(start_pvt_handler)
-dispatcher.add_handler(start_group_handler)
-dispatcher.add_handler(dci_handler)
-dispatcher.add_handler(arena_handler)
-dispatcher.add_handler(name_handler)
-dispatcher.add_handler(help_handler)
-dispatcher.add_handler(card_handler)
-dispatcher.add_handler(rulings_handler)
-dispatcher.add_handler(inline_handler)
+dispatcher.add_handler(CommandHandler('start', callback=start_pvt, filters=Filters.private))
+dispatcher.add_handler(CommandHandler('start', callback=start_group, filters=Filters.group))
+dispatcher.add_handler(CommandHandler('dci', callback=dci, filters=Filters.private))
+dispatcher.add_handler(CommandHandler('arena', callback=arena, filters=Filters.private))
+dispatcher.add_handler(CommandHandler('name', callback=name, filters=Filters.private))
+dispatcher.add_handler(CommandHandler('help', callback=help_pvt, filters=Filters.private))
+dispatcher.add_handler(MessageHandler(Filters.regex('\[\[(.*?)\]\]'), cards))
+dispatcher.add_handler(MessageHandler(Filters.regex('\(\((.*?)\)\)'), rulings))
+dispatcher.add_handler(InlineQueryHandler(inline))
+dispatcher.add_handler(CallbackQueryHandler(callback=help_cb))
 
 updater.start_polling(clean=True)

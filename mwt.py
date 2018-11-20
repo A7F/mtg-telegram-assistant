@@ -1,4 +1,4 @@
-import time, logging, Strings
+import time, logging, strings
 
 
 class MWT(object):
@@ -27,11 +27,11 @@ class MWT(object):
             key = (args, tuple(kw))
             try:
                 v = self.cache[key]
-                logging.info(Strings.Log.cached)
+                logging.info(strings.Log.cached)
                 if (time.time() - v[1]) > self.timeout:
                     raise KeyError
             except KeyError:
-                logging.info(Strings.Log.new_cache)
+                logging.info(strings.Log.new_cache)
                 v = self.cache[key] = f(*args,**kwargs),time.time()
             return v[0]
         func.func_name = f.__name__
