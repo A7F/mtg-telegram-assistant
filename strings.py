@@ -1,7 +1,8 @@
 class Global:
     user_not_exist = "you don't exist in my database. Start me in your LGS group\n"
     user_already_exist = "you already exist in my database"
-    welcome = "welcome :)"
+    welcome = "welcome, fellow planeswalker! You are now registered in my book of spells.\n" \
+              "If you need anything, you can ask me help using `/help` via pvt."
 
 
 class Dci:
@@ -32,11 +33,19 @@ class Card:
 
 
 class Help:
-    admin_help = "Hello admin!"
-    user_help = "This bot is a work in progress and because of that, not all commands are documented.\n" \
-                "This bot is intended to be used inside a group, so please start it in your local MTG group!"
-    admin_commands = ""
-    user_commands = ""
+    admin_help = "Well... there are no admin commands implemented up to now... Sorry!"
+    user_help = "*Commands available via PVT (which is, in this chat):*\n\n" \
+                "_No parameter commands:_\n" \
+                "`/start` - gives you feedback on your registration status and your telegram user ID.\n" \
+                "`/help` - get this help text. If you are an admin, it also sends their help text\n\n" \
+                "_1 parameter commands. In case you set the wrong value, you can use the related command again:_\n" \
+                "`/name` - set your player name which is the name this bot will use to address you\n" \
+                "`/dci` - set your dci number. Because is a number, the bot expects a number\n" \
+                "`/arena` - set your mtg:arena player name. Useful to let other players challenge you\n\n" \
+                "_Inline commands:_\n" \
+                "Whenever you summon this bot via inline, if no text is passed, it lets you choose to display your player card." \
+                "Your player card consists of your name, your DCI number, your telegram ID and your mtg:arena nickname. Be careful though! " \
+                "If you care about your privacy, don't use it in untrusted chats."
 
 
 class Log:

@@ -17,7 +17,6 @@ with open('config/config.json', "r+") as f:
     config = json.load(f)
 
 db = SqliteDatabase(config["database"]["path"])
-# bot = telegram.Bot(token=config["token"])
 updater = Updater(token=config["token"])
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -226,7 +225,8 @@ def help_cb(bot, update):
         pass
     try:
         bot.edit_message_text(text=reply, chat_id=query.message.chat_id,
-                              message_id=query.message.message_id, reply_markup=reply_markup)
+                              message_id=query.message.message_id, reply_markup=reply_markup,
+                              parse_mode=telegram.ParseMode.MARKDOWN)
     except telegram.error.BadRequest:
         bot.answer_callback_query(callback_query_id=update.callback_query.id)
 
