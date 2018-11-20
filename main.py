@@ -59,22 +59,22 @@ def start_group(bot, update):
 def dci(bot, update):
     args = update.message.text.split(" ")
     if len(args) == 1:
-        bot.send_message(chat_id=update.message.chat_id,
-                         text=strings.Dci.dci_invalid,
-                         parse_mode=telegram.ParseMode.MARKDOWN)
+        text = strings.Dci.dci_invalid
     else:
         dci = args[1]
         try:
-            user = tables.User.get(tables.User.user_id == update.message.from_user.id)
-            user.dci = dci
-            user.save()
-            bot.send_message(chat_id=update.message.chat_id,
-                             text=strings.Dci.dci_set.format(dci),
-                             parse_mode=telegram.ParseMode.MARKDOWN)
+            if dci.isdigit() and not dci.startswith('-'):
+                user = tables.User.get(tables.User.user_id == update.message.from_user.id)
+                user.dci = dci
+                user.save()
+                text = strings.Dci.dci_set.format(dci)
+            else:
+                text = strings.Dci.dci_invalid
         except DoesNotExist:
-            bot.send_message(chat_id=update.message.chat_id,
-                             text=strings.Global.user_not_exist,
-                             parse_mode=telegram.ParseMode.MARKDOWN)
+            text = strings.Global.user_not_exist
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=text,
+                     parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @util.send_action(ChatAction.TYPING)
