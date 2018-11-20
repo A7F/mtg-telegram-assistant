@@ -48,7 +48,6 @@ help - how do I use this bot?
 dci - set your dci number
 name - set your name
 arena - set your Arena nickname
-leaderboard - get the leaderboard
 ```
 
 ## Further improvements
