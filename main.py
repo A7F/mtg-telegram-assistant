@@ -1,7 +1,7 @@
 # some useful links:
 # https://python-telegram-bot.org/
 # http://docs.peewee-orm.com/en/latest/peewee/quickstart.html
-# https://python-telegram-bot.readthedocs.io/en/stable/telegram.user.html#telegram.User
+# https://python-telegram-bot.readthedocs.io/en/stable
 
 import logging, json, telegram, tables, scrython, re, asyncio, time, strings, util
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardButton, InlineKeyboardMarkup
@@ -235,9 +235,11 @@ def inline(bot, update):
     query = update.inline_query.query
     try:
         user = tables.User.get(tables.User.user_id == update.inline_query.from_user.id)
+        pw_url = "https://www.wizards.com/Magic/PlaneswalkerPoints/"
         text = strings.Inline.player_card_text.format(user.name if not None else "", user.user_id,
                                                       user.dci if not None else "",
-                                                      user.arena if not None else "")
+                                                      user.arena if not None else "",
+                                                      pw_url + str(user.dci) if not None else pw_url)
     except DoesNotExist:
         text = strings.Global.user_not_exist
 
@@ -247,10 +249,12 @@ def inline(bot, update):
             id="PLAYERCARD",
             title=strings.Inline.player_card_title,
             description=strings.Inline.player_card_desc,
-            input_message_content=InputTextMessageContent(text, parse_mode=telegram.ParseMode.MARKDOWN)
+            input_message_content=InputTextMessageContent(text,
+                                                          parse_mode=telegram.ParseMode.MARKDOWN,
+                                                          disable_web_page_preview=True)
         )
     )
-    bot.answer_inline_query(update.inline_query.id, results)
+    bot.answer_inline_query(update.inline_query.id, results, cache_time=10)
 
 
 dispatcher.add_handler(CommandHandler('start', callback=start_pvt, filters=Filters.private))
@@ -265,3 +269,5 @@ dispatcher.add_handler(InlineQueryHandler(inline))
 dispatcher.add_handler(CallbackQueryHandler(callback=help_cb))
 
 updater.start_polling(clean=True)
+
+

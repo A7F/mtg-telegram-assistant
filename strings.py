@@ -57,7 +57,11 @@ class Log:
 
 
 class Inline:
-    player_card_text = "Hello {}!\n*telegram ID:* `{}`\n*DCI number:* `{}`\n*Arena nickname:* _{}_"
+    player_card_text = "Hello {}!\n" \
+                       "*telegram ID:* `{}`\n" \
+                       "*DCI number:* `{}`\n" \
+                       "*Arena nickname:* _{}_\n" \
+                       "[Your planeswalker points]({})"
     player_card_desc = "your player card: dci, arena nickname..."
-    player_card_title = "Player card"
+    player_card_title = "Player Card"
 

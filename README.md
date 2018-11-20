@@ -4,6 +4,7 @@ Up to now, this bot can:
 - get card rulings, pricing and legalities
 - store DCI numbers for each player
 - store MTG:Arena usernames to challenge your friends
+- direct linking to [planeswalker points](https://www.wizards.com/magic/planeswalkerpoints) based on your DCI number
 
 ## Bot dependencies
 This bot runs with:
@@ -53,7 +54,6 @@ arena - set your Arena nickname
 ## Further improvements
 - handle FNM subscriptions
 - auto sync with your LGS events posted on facebook
-- auto fetch DCI planeswalker points
 - language localisation
 - windows app with UI, in case someone doesn't own a server
 
