@@ -17,7 +17,7 @@ with open('config/config.json', "r+") as f:
     config = json.load(f)
 
 db = SqliteDatabase(config["database"]["path"])
-bot = telegram.Bot(token=config["token"])
+# bot = telegram.Bot(token=config["token"])
 updater = Updater(token=config["token"])
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
