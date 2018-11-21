@@ -32,14 +32,3 @@ I can't provide any ETA because I'm working on this project during my free time
 
 ## Documentation
 I'm trying my best to provide in-detailed documentation in the [wiki section](https://github.com/A7F/mtg-telegram-assistant/wiki), along with install instructions, usage description and so on.
-
-### Commands implemented
-| command | description | usage |
-| ------- | ----------- | ----- |
-| start | start the bot or get your telegram ID | `/start` |
-| help | commands explainations | `/help` |
-| dci | set current user dci number | `/dci` 12345678 |
-| name | set current user name | `/name` John |
-| arena | set current user MTG:Arena nickname | `/arena` Joy#17 |
-| [[card]] | search a card | [[rift bolt]] |
-| ((card)) | search card rulings | ((rift bolt)) |
