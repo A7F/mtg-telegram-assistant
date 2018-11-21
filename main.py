@@ -269,5 +269,3 @@ dispatcher.add_handler(InlineQueryHandler(inline))
 dispatcher.add_handler(CallbackQueryHandler(callback=help_cb))
 
 updater.start_polling(clean=True)
-
-
