@@ -8,6 +8,15 @@ Up to now, this bot can:
 - store MTG:Arena usernames to challenge your friends
 - direct linking to [planeswalker points](https://www.wizards.com/magic/planeswalkerpoints) based on your DCI number
 
+### Some examples...
+On the left: a basic card search. On the right, ruligs search for card named "austere command"
+
+![pic2](https://image.ibb.co/nnUCSA/photo-2018-11-22-18-16-24.jpg) ![pic1](https://image.ibb.co/eMoHuq/photo-2018-11-22-18-16-34.jpg)  
+
+Player card via inline mode...
+
+![pic3](https://image.ibb.co/f5ZRLV/Inkedphoto-2018-11-22-18-16-38-LI.jpg)
+
 ## Bot dependencies
 This bot runs with:
 
@@ -22,7 +31,7 @@ This bot runs with:
 - language localisation
 - windows app with UI, in case someone doesn't own a server
 
-the following improvements are supposed to be implemented with Flask:
+the following improvements are supposed to be implemented with Flask, maybe as a companion app:
 
 - internal leaderboard to handle tournaments
 - event creation
