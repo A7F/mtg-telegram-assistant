@@ -1,11 +1,7 @@
 from mwt import MWT
 from functools import wraps
 import json
-
-
-with open('config/config.json') as f:
-    config = json.load(f)
-
+from config import config
 
 # Returns a list of admin IDs for a given chat. Results are cached for 15 min.
 @MWT(timeout=60*15)

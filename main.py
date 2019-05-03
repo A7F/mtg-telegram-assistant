@@ -10,11 +10,7 @@ from peewee import *
 from emoji import emojize
 from telegram.ext import Updater, InlineQueryHandler, CallbackQueryHandler
 from telegram.ext import MessageHandler, CommandHandler, Filters
-
-
-with open('config/config.json', "r+") as f:
-    f.seek(0)
-    config = json.load(f)
+from config import config
 
 db = SqliteDatabase(config["database"]["path"])
 updater = Updater(token=config["token"])
