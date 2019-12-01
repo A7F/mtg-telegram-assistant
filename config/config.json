@@ -1,0 +1,20 @@
+{
+    "token": "your bot token here",
+    "cli_mode": true,
+    "group_id": 0,
+    "master": [
+        35853037
+    ],
+    "locale": "it",
+    "database": {
+        "path": "./bot_database.db"
+    },
+    "rss": {
+        "poll_time": 3600,
+        "limit": 1,
+        "links": [
+            "https://channelfireball.com/feed/rss/",
+            "https://mtgarenaitalia.altervista.org/feed/"
+        ]
+    }
+}

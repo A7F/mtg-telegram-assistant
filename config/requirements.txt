@@ -1,0 +1,5 @@
+scrython==1.7.1
+peewee==3.12.0
+python_telegram_bot==11.1.0
+emoji==0.5.4
+telegram==0.0.1
