@@ -57,7 +57,7 @@ async def check_rss():
 
 def start_pvt(bot, update):
     try:
-        user = tables.User.get(tables.User.user_id == update.message.from_user.id)
+        tables.User.get(tables.User.user_id == update.message.from_user.id)
         text = strings.Start.start_pvt
     except DoesNotExist:
         text = strings.Global.user_not_exist
@@ -113,7 +113,7 @@ def dci(bot, update):
 
 @util.send_action(ChatAction.TYPING)
 def name(bot, update):
-    args = update.message.text.split(" ")
+    args = update.message.text.split(" ", 1)
     if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id,
                          text=strings.Name.name_invalid,
@@ -135,7 +135,7 @@ def name(bot, update):
 
 @util.send_action(ChatAction.TYPING)
 def arena(bot, update):
-    args = update.message.text.split(" ")
+    args = update.message.text.split(" ", 1)
     if len(args) == 1:
         bot.send_message(chat_id=update.message.chat_id,
                          text=strings.Arena.arena_invalid,
@@ -169,12 +169,12 @@ def cards(bot, update):
                              text=strings.Card.card_not_found.format(name),
                              parse_mode=telegram.ParseMode.MARKDOWN)
             continue
-        not_legal = [k for k, v in card.legalities().items() if v == "not_legal"]
+        banned_in = [k for k, v in card.legalities().items() if v == "banned"]
         legal_in = ""
-        if len(not_legal) == 0:
+        if len(banned_in) == 0:
             legal_in = strings.Card.card_legal
         else:
-            for v in not_legal:
+            for v in banned_in:
                 legal_in += v + " "
         try:
             eur = card.prices(mode="eur") + "€"
@@ -232,6 +232,15 @@ def rulings(bot, update):
         time.sleep(0.07)
 
 
+def register_users(bot, update):
+    try:
+        tables.User.get(tables.User.user_id == update.inline_query.from_user.id)
+    except DoesNotExist:
+        tables.User.create(user_id=update.message.from_user.id,
+                           group=update.message.chat_id,
+                           name=update.message.from_user.first_name)
+
+
 @util.send_action(ChatAction.TYPING)
 def help_pvt(bot, update):
     if update.message.from_user.id in util.get_admin_ids(bot):
@@ -270,7 +279,6 @@ def help_cb(bot, update):
 
 
 def inline(bot, update):
-    query = update.inline_query.query
     try:
         user = tables.User.get(tables.User.user_id == update.inline_query.from_user.id)
         pw_url = "https://www.wizards.com/Magic/PlaneswalkerPoints/"
@@ -304,6 +312,7 @@ dispatcher.add_handler(CommandHandler('name', callback=name, filters=Filters.pri
 dispatcher.add_handler(CommandHandler('help', callback=help_pvt, filters=Filters.private))
 dispatcher.add_handler(MessageHandler(Filters.regex('\[\[(.*?)\]\]'), cards))
 dispatcher.add_handler(MessageHandler(Filters.regex('\(\((.*?)\)\)'), rulings))
+dispatcher.add_handler(MessageHandler(Filters.text & Filters.group, register_users))
 dispatcher.add_handler(InlineQueryHandler(inline))
 dispatcher.add_handler(CallbackQueryHandler(callback=help_cb))
 

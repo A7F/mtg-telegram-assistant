@@ -10,7 +10,7 @@ Up to now, this bot can:
 - read rss feeds from a custom list of websites
 
 ### Some examples...
-On the left: a basic card search. On the right, ruligs search for card named "austere command"
+On the left: a basic card search. On the right, rulings search for card named "austere command"
 
 ![pic2](https://image.ibb.co/nnUCSA/photo-2018-11-22-18-16-24.jpg) ![pic1](https://image.ibb.co/eMoHuq/photo-2018-11-22-18-16-34.jpg)  
 
