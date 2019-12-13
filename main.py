@@ -13,7 +13,6 @@ from telegram.ext import MessageHandler, CommandHandler, Filters
 import feedparser, datetime
 from config import config
 
-
 db = SqliteDatabase(config["database"]["path"])
 updater = Updater(token=config["token"])
 dispatcher = updater.dispatcher
@@ -47,11 +46,12 @@ async def check_rss():
                         x = datetime.datetime.today()
                     finally:
                         tables.Feed.create(feed_id=post.id, date=x)
-                        text = "["+post.title+"]("+post.link+")"
+                        text = "[" + post.title + "](" + post.link + ")"
                         if config["group_id"] == 0:
                             pass
                         else:
-                            updater.bot.send_message(chat_id=config["group_id"], text=text, parse_mode=telegram.ParseMode.MARKDOWN)
+                            updater.bot.send_message(chat_id=config["group_id"], text=text,
+                                                     parse_mode=telegram.ParseMode.MARKDOWN)
         await asyncio.sleep(config["rss"]["poll_time"])
 
 
@@ -69,13 +69,24 @@ def start_pvt(bot, update):
 def start_group(bot, update):
     util.get_admin_ids(bot, update.message.chat_id)
     try:
-        user = tables.User.get(tables.User.user_id == update.message.from_user.id)
+        tables.User.get(tables.User.user_id == update.message.from_user.id)
         bot.send_message(chat_id=update.message.chat_id, text=strings.Global.user_already_exist)
     except DoesNotExist:
-        member = tables.User.create(user_id=update.message.from_user.id, group=update.message.chat_id,
-                                    name=update.message.from_user.first_name)
+        tables.User.create(user_id=update.message.from_user.id,
+                           group=update.message.chat_id,
+                           name=update.message.from_user.first_name)
         welcome = strings.Global.welcome.format(update.message.chat_id)
         bot.send_message(chat_id=update.message.chat_id, text=welcome, parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def friend_list(bot, update):
+    query = tables.User.select().where(tables.User.arena.is_null(False))
+    text = strings.Global.friendlist+"\n"
+    for result in query:
+        text += "{} - {}\n".format(result.name, result.arena)
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=emojize(text, use_aliases=True),
+                     parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @util.send_action(ChatAction.TYPING)
@@ -178,15 +189,15 @@ def cards(bot, update):
         eur_link = card.purchase_uris().get("cardmarket")
         if eur_link is None or card.lang() == config["locale"]:
             eur_link = "https://www.cardmarket.com/" + config["locale"] \
-                       + "/Magic/Products/Search?searchString="+name.replace(" ","+")
+                       + "/Magic/Products/Search?searchString=" + name.replace(" ", "+")
         if usd_link is None:
-            usd_link = "https://shop.tcgplayer.com/productcatalog/product/show?newSearch=false&ProductName="\
-                       + name.replace(" ","+")
+            usd_link = "https://shop.tcgplayer.com/productcatalog/product/show?newSearch=false&ProductName=" \
+                       + name.replace(" ", "+")
 
-        edhlink = "https://edhrec.com/cards/"+name.replace(" ", "-") if card.lang() == "en" else "https://edhrec.com"
+        edhlink = "https://edhrec.com/cards/" + name.replace(" ", "-") if card.lang() == "en" else "https://edhrec.com"
         img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
                               + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
-                              + ":no_entry: "+legal_in + "\n"
+                              + ":no_entry: " + legal_in + "\n"
                               + "[EDHREC](" + edhlink + ")", use_aliases=True)
         bot.send_photo(chat_id=update.message.chat_id, photo=card.image_uris(0, image_type="normal"),
                        caption=img_caption, parse_mode=telegram.ParseMode.MARKDOWN,
@@ -286,6 +297,7 @@ def inline(bot, update):
 
 dispatcher.add_handler(CommandHandler('start', callback=start_pvt, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('start', callback=start_group, filters=Filters.group))
+dispatcher.add_handler(CommandHandler('friendlist', callback=friend_list, filters=Filters.group))
 dispatcher.add_handler(CommandHandler('dci', callback=dci, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('arena', callback=arena, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('name', callback=name, filters=Filters.private))

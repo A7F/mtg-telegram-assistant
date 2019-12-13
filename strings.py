@@ -4,6 +4,7 @@ class Global:
     welcome = "welcome, fellow planeswalker! You are now registered in my book of spells.\n" \
               "If you need anything, you can ask me help using `/help` via pvt.\n" \
                "Oh, by the way, this group ID is {}. Use it to set up RSS feeds!"
+    friendlist = "This is the friendlist :)\n"
 
 
 class Dci:
