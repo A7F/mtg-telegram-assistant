@@ -1,7 +1,5 @@
-import json
 from peewee import *
 import datetime
-import os
 from config import config
 
 db = SqliteDatabase(config["database"]["path"])

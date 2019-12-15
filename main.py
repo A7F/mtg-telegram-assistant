@@ -3,7 +3,7 @@
 # http://docs.peewee-orm.com/en/latest/peewee/quickstart.html
 # https://python-telegram-bot.readthedocs.io/en/stable
 
-import logging, json, telegram, tables, scrython, re, asyncio, time, strings, util
+import logging, telegram, tables, scrython, re, asyncio, time, strings, util
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import ChatAction
 from peewee import *
@@ -67,7 +67,6 @@ def start_pvt(bot, update):
 
 
 def start_group(bot, update):
-    util.get_admin_ids(bot, update.message.chat_id)
     try:
         tables.User.get(tables.User.user_id == update.message.from_user.id)
         bot.send_message(chat_id=update.message.chat_id, text=strings.Global.user_already_exist)
@@ -83,10 +82,20 @@ def friend_list(bot, update):
     query = tables.User.select().where(tables.User.arena.is_null(False))
     text = strings.Global.friendlist+"\n"
     for result in query:
-        text += "{} - {}\n".format(result.name, result.arena)
+        chat_member = bot.getChatMember(chat_id=update.message.chat_id, user_id=result.user_id)
+        user = chat_member.user
+        if user is None:
+            result.delete()
+            continue
+        else:
+            if user.username:
+                text += "[{}](t.me/{}) - {}\n".format(result.name, user.username, result.arena)
+            else:
+                text += "{} - {}\n".format(result.name, result.arena)
     bot.send_message(chat_id=update.message.chat_id,
                      text=emojize(text, use_aliases=True),
-                     parse_mode=telegram.ParseMode.MARKDOWN)
+                     parse_mode=telegram.ParseMode.MARKDOWN,
+                     disable_web_page_preview=True)
 
 
 @util.send_action(ChatAction.TYPING)
@@ -234,7 +243,7 @@ def rulings(bot, update):
 
 def register_users(bot, update):
     try:
-        tables.User.get(tables.User.user_id == update.inline_query.from_user.id)
+        tables.User.get(tables.User.user_id == update.message.from_user.id)
     except DoesNotExist:
         tables.User.create(user_id=update.message.from_user.id,
                            group=update.message.chat_id,
