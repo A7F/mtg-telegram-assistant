@@ -58,6 +58,7 @@ async def check_rss():
 
 def error(update, context):
     logger.warning('Error "%s"', context.error)
+    raise
 
 
 def start_pvt(update: Update, context: CallbackContext):
@@ -91,16 +92,14 @@ def friend_list(update: Update, context: CallbackContext):
         user = chat_member.user
         if user is None:
             result.delete()
-            continue
         else:
             if user.username:
-                text += "[{}](t.me/{}) - {}\n".format(result.name, user.username, result.arena)
+                text += "<a href=\"t.me/{}\">{}</a> - {}\n".format(user.username, result.name, result.arena)
             else:
                 text += "{} - {}\n".format(result.name, result.arena)
-    context.bot.send_message(chat_id=update.message.chat_id,
-                     text=text,
-                     parse_mode=telegram.ParseMode.MARKDOWN,
-                     disable_web_page_preview=True)
+    context.bot.send_message(chat_id=update.message.chat_id, text=text,
+                             parse_mode=telegram.ParseMode.HTML,
+                             disable_web_page_preview=True)
 
 
 @util.send_action(ChatAction.TYPING)
