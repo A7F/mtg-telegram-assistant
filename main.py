@@ -4,19 +4,20 @@
 # https://python-telegram-bot.readthedocs.io/en/stable
 
 import logging, telegram, tables, scrython, re, asyncio, time, strings, util
-from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram import ChatAction
 from peewee import *
 from emoji import emojize
-from telegram.ext import Updater, InlineQueryHandler, CallbackQueryHandler
+from telegram.ext import Updater, InlineQueryHandler, CallbackQueryHandler, CallbackContext
 from telegram.ext import MessageHandler, CommandHandler, Filters
-import feedparser, datetime
+import feedparser, datetime, logging
 from config import config
 
 db = SqliteDatabase(config["database"]["path"])
-updater = Updater(token=config["token"])
+updater = Updater(token=config["token"], use_context=True)
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 max_cards = 4
 
 try:
@@ -55,7 +56,11 @@ async def check_rss():
         await asyncio.sleep(config["rss"]["poll_time"])
 
 
-def start_pvt(bot, update):
+def error(update, context):
+    logger.warning('Error "%s"', context.error)
+
+
+def start_pvt(update: Update, context: CallbackContext):
     try:
         tables.User.get(tables.User.user_id == update.message.from_user.id)
         text = strings.Start.start_pvt
@@ -63,26 +68,26 @@ def start_pvt(bot, update):
         text = strings.Global.user_not_exist
     finally:
         text += strings.Start.start_id.format(update.message.from_user.id)
-        bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
+        context.bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-def start_group(bot, update):
+def start_group(update: Update, context: CallbackContext):
     try:
         tables.User.get(tables.User.user_id == update.message.from_user.id)
-        bot.send_message(chat_id=update.message.chat_id, text=strings.Global.user_already_exist)
+        context.bot.send_message(chat_id=update.message.chat_id, text=strings.Global.user_already_exist)
     except DoesNotExist:
         tables.User.create(user_id=update.message.from_user.id,
                            group=update.message.chat_id,
                            name=update.message.from_user.first_name)
         welcome = strings.Global.welcome.format(update.message.chat_id)
-        bot.send_message(chat_id=update.message.chat_id, text=welcome, parse_mode=telegram.ParseMode.MARKDOWN)
+        context.bot.send_message(chat_id=update.message.chat_id, text=welcome, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-def friend_list(bot, update):
+def friend_list(update: Update, context: CallbackContext):
     query = tables.User.select().where(tables.User.arena.is_null(False))
-    text = strings.Global.friendlist+"\n"
+    text = strings.Friendlist.friendlist+"\n"
     for result in query:
-        chat_member = bot.getChatMember(chat_id=update.message.chat_id, user_id=result.user_id)
+        chat_member = context.bot.getChatMember(chat_id=update.message.chat_id, user_id=result.user_id)
         user = chat_member.user
         if user is None:
             result.delete()
@@ -92,14 +97,14 @@ def friend_list(bot, update):
                 text += "[{}](t.me/{}) - {}\n".format(result.name, user.username, result.arena)
             else:
                 text += "{} - {}\n".format(result.name, result.arena)
-    bot.send_message(chat_id=update.message.chat_id,
-                     text=emojize(text, use_aliases=True),
+    context.bot.send_message(chat_id=update.message.chat_id,
+                     text=text,
                      parse_mode=telegram.ParseMode.MARKDOWN,
                      disable_web_page_preview=True)
 
 
 @util.send_action(ChatAction.TYPING)
-def dci(bot, update):
+def dci(update: Update, context: CallbackContext):
     args = update.message.text.split(" ")
     if len(args) == 1:
         text = strings.Dci.dci_invalid
@@ -115,16 +120,16 @@ def dci(bot, update):
                 text = strings.Dci.dci_invalid
         except DoesNotExist:
             text = strings.Global.user_not_exist
-    bot.send_message(chat_id=update.message.chat_id,
+    context.bot.send_message(chat_id=update.message.chat_id,
                      text=text,
                      parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @util.send_action(ChatAction.TYPING)
-def name(bot, update):
+def name(update: Update, context: CallbackContext):
     args = update.message.text.split(" ", 1)
     if len(args) == 1:
-        bot.send_message(chat_id=update.message.chat_id,
+        context.bot.send_message(chat_id=update.message.chat_id,
                          text=strings.Name.name_invalid,
                          parse_mode=telegram.ParseMode.MARKDOWN)
     else:
@@ -133,20 +138,20 @@ def name(bot, update):
             user = tables.User.get(tables.User.user_id == update.message.from_user.id)
             user.name = name
             user.save()
-            bot.send_message(chat_id=update.message.chat_id,
+            context.bot.send_message(chat_id=update.message.chat_id,
                              text=strings.Name.name_set.format(name),
                              parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
-            bot.send_message(chat_id=update.message.chat_id,
+            context.bot.send_message(chat_id=update.message.chat_id,
                              text=strings.Global.user_not_exist,
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @util.send_action(ChatAction.TYPING)
-def arena(bot, update):
+def arena(update: Update, context: CallbackContext):
     args = update.message.text.split(" ", 1)
     if len(args) == 1:
-        bot.send_message(chat_id=update.message.chat_id,
+        context.bot.send_message(chat_id=update.message.chat_id,
                          text=strings.Arena.arena_invalid,
                          parse_mode=telegram.ParseMode.MARKDOWN)
     else:
@@ -155,17 +160,17 @@ def arena(bot, update):
             user = tables.User.get(tables.User.user_id == update.message.from_user.id)
             user.arena = arena
             user.save()
-            bot.send_message(chat_id=update.message.chat_id,
+            context.bot.send_message(chat_id=update.message.chat_id,
                              text=strings.Arena.arena_set.format(arena),
                              parse_mode=telegram.ParseMode.MARKDOWN)
         except DoesNotExist:
-            bot.send_message(chat_id=update.message.chat_id,
+            context.bot.send_message(chat_id=update.message.chat_id,
                              text=strings.Global.user_not_exist,
                              parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 @util.send_action(ChatAction.UPLOAD_PHOTO)
-def cards(bot, update):
+def cards(update: Update, context: CallbackContext):
     match = re.findall(r'\[\[(.*?)\]\]', update.message.text)
     asyncio.set_event_loop(asyncio.new_event_loop())
     for index, name in enumerate(match):
@@ -174,7 +179,7 @@ def cards(bot, update):
         try:
             card = scrython.cards.Named(fuzzy=name)
         except Exception:
-            bot.send_message(chat_id=update.message.chat_id,
+            context.bot.send_message(chat_id=update.message.chat_id,
                              text=strings.Card.card_not_found.format(name),
                              parse_mode=telegram.ParseMode.MARKDOWN)
             continue
@@ -208,40 +213,39 @@ def cards(bot, update):
                               + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
                               + ":no_entry: " + legal_in + "\n"
                               + "[EDHREC](" + edhlink + ")", use_aliases=True)
-        bot.send_photo(chat_id=update.message.chat_id, photo=card.image_uris(0, image_type="normal"),
+        context.bot.send_photo(chat_id=update.message.chat_id, photo=card.image_uris(0, image_type="normal"),
                        caption=img_caption, parse_mode=telegram.ParseMode.MARKDOWN,
                        reply_to_message_id=update.message.message_id)
         time.sleep(0.04)
 
 
 @util.send_action(ChatAction.TYPING)
-def rulings(bot, update):
+def rulings(update: Update, context: CallbackContext):
     match = re.findall(r'\(\((.*?)\)\)', update.message.text)
     asyncio.set_event_loop(asyncio.new_event_loop())
     for index, name in enumerate(match):
         if index > max_cards:
             break
-        card = scrython.cards.Named(fuzzy=name)
         try:
             card = scrython.cards.Named(fuzzy=name)
         except Exception:
-            bot.send_message(chat_id=update.message.chat_id,
+            context.bot.send_message(chat_id=update.message.chat_id,
                              text=strings.Card.card_not_found.format(name),
                              parse_mode=telegram.ParseMode.MARKDOWN)
             continue
         rule = scrython.rulings.Id(id=card.id())
-        bot.send_chat_action(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
+        context.bot.send_chat_action(chat_id=update.message.chat_id, action=telegram.ChatAction.TYPING)
         message = ""
         if rule.data_length() == 0:
             message = strings.Card.card_ruling_unavailable
         else:
             for index, rule_text in enumerate(rule.data()):
                 message += (str(index + 1) + ". " + rule.data(index=index, key="comment") + "\n\n")
-        bot.send_message(chat_id=update.message.chat_id, text=message, reply_to_message_id=update.message.message_id)
+        context.bot.send_message(chat_id=update.message.chat_id, text=message, reply_to_message_id=update.message.message_id)
         time.sleep(0.07)
 
 
-def register_users(bot, update):
+def register_users(update: Update, context: CallbackContext):
     try:
         tables.User.get(tables.User.user_id == update.message.from_user.id)
     except DoesNotExist:
@@ -251,24 +255,24 @@ def register_users(bot, update):
 
 
 @util.send_action(ChatAction.TYPING)
-def help_pvt(bot, update):
-    if update.message.from_user.id in util.get_admin_ids(bot):
+def help_pvt(update: Update, context: CallbackContext):
+    if update.message.from_user.id in util.get_admin_ids(context.bot):
         button_list = [InlineKeyboardButton("user", callback_data="help_user"),
                        InlineKeyboardButton("admin", callback_data="help_admin")]
         reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=2))
         text = strings.Help.admin_help
-        bot.send_message(chat_id=update.message.chat_id,
+        context.bot.send_message(chat_id=update.message.chat_id,
                          text=emojize(text, use_aliases=True),
                          parse_mode=telegram.ParseMode.MARKDOWN,
                          reply_markup=reply_markup)
     else:
         text = strings.Help.user_help
-        bot.send_message(chat_id=update.message.chat_id,
+        context.bot.send_message(chat_id=update.message.chat_id,
                          text=emojize(text, use_aliases=True),
                          parse_mode=telegram.ParseMode.MARKDOWN)
 
 
-def help_cb(bot, update):
+def help_cb(update: Update, context: CallbackContext):
     query = update.callback_query
     button_list = [InlineKeyboardButton("user", callback_data="help_user"),
                    InlineKeyboardButton("admin", callback_data="help_admin")]
@@ -280,14 +284,14 @@ def help_cb(bot, update):
         reply = strings.Help.admin_help
         pass
     try:
-        bot.edit_message_text(text=reply, chat_id=query.message.chat_id,
+        context.bot.edit_message_text(text=reply, chat_id=query.message.chat_id,
                               message_id=query.message.message_id, reply_markup=reply_markup,
                               parse_mode=telegram.ParseMode.MARKDOWN)
     except telegram.error.BadRequest:
-        bot.answer_callback_query(callback_query_id=update.callback_query.id)
+        context.bot.answer_callback_query(callback_query_id=update.callback_query.id)
 
 
-def inline(bot, update):
+def inline(update: Update, context: CallbackContext):
     try:
         user = tables.User.get(tables.User.user_id == update.inline_query.from_user.id)
         pw_url = "https://www.wizards.com/Magic/PlaneswalkerPoints/"
@@ -309,7 +313,7 @@ def inline(bot, update):
                                                           disable_web_page_preview=True)
         )
     )
-    bot.answer_inline_query(update.inline_query.id, results, cache_time=10)
+    context.bot.answer_inline_query(update.inline_query.id, results, cache_time=10)
 
 
 dispatcher.add_handler(CommandHandler('start', callback=start_pvt, filters=Filters.private))
@@ -325,6 +329,7 @@ dispatcher.add_handler(MessageHandler(Filters.text & Filters.group, register_use
 dispatcher.add_handler(InlineQueryHandler(inline))
 dispatcher.add_handler(CallbackQueryHandler(callback=help_cb))
 
+dispatcher.add_error_handler(error)
 # start the bot
 updater.start_polling(clean=True)
 
