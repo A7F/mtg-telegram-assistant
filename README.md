@@ -26,6 +26,7 @@ This bot runs with:
 - [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) (of course)
 - [scrython](https://github.com/NandaScott/Scrython) (python bindings to Scryfall API)
 - [emoji](https://github.com/carpedm20/emoji) (because emojis makes messages waay more fancy!)
+- requests and beautifulsoup4 (to fetch data from mtga server status website)
 
 ## Further improvements
 - handle FNM subscriptions
