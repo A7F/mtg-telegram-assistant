@@ -107,7 +107,8 @@ def friend_list(update: Update, context: CallbackContext):
 @util.send_action(ChatAction.TYPING)
 def arena_status(update: Update, context: CallbackContext):
     statuspage = 'https://magicthegatheringarena.statuspage.io/'
-    page = requests.get(statuspage)
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0'}
+    page = requests.get(statuspage, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
 
     message = ":computer: "+strings.Arena.arena_status+" :computer:\n\n"
@@ -274,6 +275,7 @@ def rulings(update: Update, context: CallbackContext):
 
 def register_users(update: Update, context: CallbackContext):
     try:
+        # todo: fix none object has attribute from_user
         tables.User.get(tables.User.user_id == update.message.from_user.id)
     except DoesNotExist:
         tables.User.create(user_id=update.message.from_user.id,
