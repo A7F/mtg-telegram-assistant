@@ -8,6 +8,7 @@ Up to now, this bot can:
 - store MTG:Arena usernames to challenge your friends
 - direct linking to [planeswalker points](https://www.wizards.com/magic/planeswalkerpoints) based on your DCI number
 - read rss feeds from a custom list of websites
+- check mtg arena server status page
 
 ### Some examples...
 On the left: a basic card search. On the right, rulings search for card named "austere command"

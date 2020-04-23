@@ -7,7 +7,7 @@ class Global:
 
 
 class Friendlist:
-    friendlist = "This is the friendlist :)\n"
+    friendlist = "This is the friendlist"
     refresh = "refresh"
 
 
@@ -24,6 +24,10 @@ class Name:
 class Arena:
     arena_set = "your MTGArena player name is now set to {}"
     arena_invalid = "hey something went wrong. \nUsage: `/arena` yourname"
+    arena_status = "_MTGA state of servers_"
+    server_ok = "operational"
+    server_maintenance = "under maintenance"
+    goto_statuspage = "See more..."
 
 
 class Start:

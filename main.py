@@ -8,9 +8,10 @@ from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKe
 from telegram import ChatAction
 from peewee import *
 from emoji import emojize
+from bs4 import BeautifulSoup
 from telegram.ext import Updater, InlineQueryHandler, CallbackQueryHandler, CallbackContext
 from telegram.ext import MessageHandler, CommandHandler, Filters
-import feedparser, datetime, logging
+import feedparser, datetime, logging, requests
 from config import config
 
 db = SqliteDatabase(config["database"]["path"])
@@ -84,9 +85,10 @@ def start_group(update: Update, context: CallbackContext):
         context.bot.send_message(chat_id=update.message.chat_id, text=welcome, parse_mode=telegram.ParseMode.MARKDOWN)
 
 
+@util.send_action(ChatAction.TYPING)
 def friend_list(update: Update, context: CallbackContext):
     query = tables.User.select().where(tables.User.arena.is_null(False))
-    text = strings.Friendlist.friendlist+"\n"
+    text = " :busts_in_silhouette: "+strings.Friendlist.friendlist+" :dancers: \n\n"
     for result in query:
         chat_member = context.bot.getChatMember(chat_id=update.message.chat_id, user_id=result.user_id)
         user = chat_member.user
@@ -97,8 +99,34 @@ def friend_list(update: Update, context: CallbackContext):
                 text += "<a href=\"t.me/{}\">{}</a> - {}\n".format(user.username, result.name, result.arena)
             else:
                 text += "{} - {}\n".format(result.name, result.arena)
-    context.bot.send_message(chat_id=update.message.chat_id, text=text,
+    context.bot.send_message(chat_id=update.message.chat_id, text=emojize(text, use_aliases=True),
                              parse_mode=telegram.ParseMode.HTML,
+                             disable_web_page_preview=True)
+
+
+@util.send_action(ChatAction.TYPING)
+def arena_status(update: Update, context: CallbackContext):
+    statuspage = 'https://magicthegatheringarena.statuspage.io/'
+    page = requests.get(statuspage)
+    soup = BeautifulSoup(page.content, 'html.parser')
+
+    message = ":computer: "+strings.Arena.arena_status+" :computer:\n\n"
+    # search all services under maintenance
+    for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-blue '}):
+        bar = foo.find('span', attrs={'class': ['name', 'component-status ']})
+        message += ":x: {} - {}\n".format(bar.text.strip(), strings.Arena.server_maintenance)
+
+    # search all operational services
+    for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-green '}):
+        bar = foo.find('span', attrs={'class': ['name', 'component-status ']})
+        message += ":white_check_mark: {} - {}\n".format(bar.text.strip(), strings.Arena.server_ok)
+
+    keyboard = [[InlineKeyboardButton(strings.Arena.goto_statuspage, url=statuspage)]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    context.bot.send_message(chat_id=update.message.chat_id, text=emojize(message, use_aliases=True),
+                             parse_mode=telegram.ParseMode.MARKDOWN,
+                             reply_markup=reply_markup,
                              disable_web_page_preview=True)
 
 
@@ -318,6 +346,7 @@ def inline(update: Update, context: CallbackContext):
 dispatcher.add_handler(CommandHandler('start', callback=start_pvt, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('start', callback=start_group, filters=Filters.group))
 dispatcher.add_handler(CommandHandler('friendlist', callback=friend_list, filters=Filters.group))
+dispatcher.add_handler(CommandHandler('status', callback=arena_status, filters=Filters.group))
 dispatcher.add_handler(CommandHandler('dci', callback=dci, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('arena', callback=arena, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('name', callback=name, filters=Filters.private))
