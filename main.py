@@ -113,12 +113,12 @@ def arena_status(update: Update, context: CallbackContext):
 
     message = ":computer: "+strings.Arena.arena_status+" :computer:\n\n"
     # search all services under maintenance
-    for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-blue '}):
+    for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-blue'}):
         bar = foo.find('span', attrs={'class': ['name', 'component-status ']})
         message += ":x: {} - {}\n".format(bar.text.strip(), strings.Arena.server_maintenance)
 
     # search all operational services
-    for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-green '}):
+    for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-green'}):
         bar = foo.find('span', attrs={'class': ['name', 'component-status ']})
         message += ":white_check_mark: {} - {}\n".format(bar.text.strip(), strings.Arena.server_ok)
 
