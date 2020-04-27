@@ -32,7 +32,7 @@ class Arena:
 
 class Start:
     start_pvt = "You are successfully registered on this bot :)\n"
-    start_id = "your telegram ID is `{}`"
+    start_id = "your telegram ID is `{}` and this group id is {}"
 
 
 class Card:
@@ -43,19 +43,26 @@ class Card:
 
 
 class Help:
+    social_links = ":rocket: Here are the links for everything related our group! :rocket:\n\n"
     admin_help = "Well... there are no admin commands implemented up to now... Sorry!"
     user_help = "*Commands available via PVT (which is, in this chat):*\n\n" \
                 "_No parameter commands:_\n" \
                 "`/start` - gives you feedback on your registration status and your telegram user ID.\n" \
                 "`/help` - get this help text. If you are an admin, it also sends their help text\n\n" \
-                "_1 parameter commands. In case you set the wrong value, you can use the related command again:_\n" \
+                "_1 parameter PVT commands. In case you set the wrong value, you can use the related command again:_\n" \
                 "`/name` - set your player name which is the name this bot will use to address you\n" \
                 "`/dci` - set your dci number. Because is a number, the bot expects a number\n" \
                 "`/arena` - set your mtg:arena player name. Useful to let other players challenge you\n\n" \
                 "_Inline commands:_\n" \
                 "Whenever you summon this bot via inline, if no text is passed, it lets you choose to display your player card." \
                 "Your player card consists of your name, your DCI number, your telegram ID and your mtg:arena nickname. Be careful though! " \
-                "If you care about your privacy, don't use it in untrusted chats."
+                "If you care about your privacy, don't use it in untrusted chats.\n\n"\
+                "*Group commands:*\n"\
+                "`[[cardname]]` - search for the card named `cardname` on scryfall. Also available via pvt.\n"\
+                "`((cardname))` - search for rulings related to the card named `cardname`. Also available via pvt.'\n" \
+                "`/status` - check all MTGA servers if are operational or under maintenance\n" \
+                "`/friendlist` - get the friendlist\n" \
+                "`/social` - get a list with all the social links for this community. Also available via pvt.\n"
 
 
 class Log:

@@ -3,3 +3,5 @@ peewee==3.12.0
 python_telegram_bot==12.3.0
 emoji==0.5.4
 telegram==0.0.1
+beautifulsoup4==4.6.3
+requests==2.20.0

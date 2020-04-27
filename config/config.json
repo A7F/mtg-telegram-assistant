@@ -1,20 +1,30 @@
 {
-    "token": "your bot token here",
+    "token": "insert your bot token here",
     "cli_mode": true,
     "group_id": 0,
+    "channel_id": "@yourchannel",
+    "social": {
+        "twitter": "insert your twitter link here",
+        "facebook": "same thing but for facebook",
+        "youtube": "youtube link",
+        "twitch": "same...",
+        "discord": "",
+        "instagram": "",
+        "channel": "https://t.me/yourchannelname"
+    },
     "master": [
-        35853037
+        178781601
     ],
     "locale": "it",
     "database": {
         "path": "./bot_database.db"
     },
     "rss": {
-        "poll_time": 3600,
-        "limit": 1,
+        "poll_time": 4600,
+        "post_to": "channel",
+        "limit": 2,
         "links": [
-            "https://channelfireball.com/feed/rss/",
-            "https://mtgarenaitalia.altervista.org/feed/"
+            "https://www.clepshydra.it/feed/"
         ]
     }
 }

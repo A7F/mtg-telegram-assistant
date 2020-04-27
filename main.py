@@ -38,22 +38,26 @@ async def check_rss():
     while True:
         for url in urls:
             feed = feedparser.parse(url)
-            for index, post in zip(range(limit), feed.entries):
-                try:
-                    rss = tables.Feed.get(tables.Feed.feed_id == post.id)
-                except DoesNotExist:
+            if config["rss"]["post_to"]:
+                for index, post in zip(range(limit), feed.entries):
                     try:
-                        x = datetime.datetime(*post.updated_parsed[:6])
-                    except AttributeError:
-                        x = datetime.datetime.today()
-                    finally:
-                        tables.Feed.create(feed_id=post.id, date=x)
-                        text = "[" + post.title + "](" + post.link + ")"
-                        if config["group_id"] == 0:
-                            pass
-                        else:
-                            updater.bot.send_message(chat_id=config["group_id"], text=text,
-                                                     parse_mode=telegram.ParseMode.MARKDOWN)
+                        rss = tables.Feed.get(tables.Feed.feed_id == post.id)
+                    except DoesNotExist:
+                        try:
+                            x = datetime.datetime(*post.updated_parsed[:6])
+                        except AttributeError:
+                            x = datetime.datetime.today()
+                        finally:
+                            tables.Feed.create(feed_id=post.id, date=x)
+                            text = "[" + post.title + "](" + post.link + ")"
+                            if config["rss"]["post_to"] == "channel":
+                                updater.bot.send_message(chat_id=config["channel_id"],
+                                                         text=text,
+                                                         parse_mode=telegram.ParseMode.MARKDOWN)
+                            else:
+                                updater.bot.send_message(chat_id=config["group_id"],
+                                                         text=text,
+                                                         parse_mode=telegram.ParseMode.MARKDOWN)
         await asyncio.sleep(config["rss"]["poll_time"])
 
 
@@ -81,8 +85,25 @@ def start_group(update: Update, context: CallbackContext):
         tables.User.create(user_id=update.message.from_user.id,
                            group=update.message.chat_id,
                            name=update.message.from_user.first_name)
-        welcome = strings.Global.welcome.format(update.message.chat_id)
+        welcome = strings.Global.welcome.format(update.message.from_user.id, update.message.chat_id)
         context.bot.send_message(chat_id=update.message.chat_id, text=welcome, parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def social(update: Update, context: CallbackContext):
+    text = strings.Help.social_links
+    foo = "[Facebook]("+config["social"]["facebook"]+")\n"\
+          "[Twitter]("+config["social"]["twitter"]+")\n"\
+          "[Youtube]("+config["social"]["youtube"]+")\n"\
+        "[Instagram]("+config["social"]["instagram"]+")\n"\
+        "[Twitch]("+config["social"]["twitch"]+")\n"\
+        "[Telegram channel]("+config["social"]["channel"]+")\n"\
+        "[Discord]("+config["social"]["discord"]+")"
+
+    text = text + foo
+    print(text)
+    context.bot.send_message(chat_id=update.message.chat_id, text=emojize(text, use_aliases=True),
+                             parse_mode=telegram.ParseMode.MARKDOWN,
+                             disable_web_page_preview=True)
 
 
 @util.send_action(ChatAction.TYPING)
@@ -347,6 +368,7 @@ def inline(update: Update, context: CallbackContext):
 
 dispatcher.add_handler(CommandHandler('start', callback=start_pvt, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('start', callback=start_group, filters=Filters.group))
+dispatcher.add_handler(CommandHandler('social', callback=social, filters=(Filters.private | Filters.group)))
 dispatcher.add_handler(CommandHandler('friendlist', callback=friend_list, filters=Filters.group))
 dispatcher.add_handler(CommandHandler('status', callback=arena_status, filters=Filters.group))
 dispatcher.add_handler(CommandHandler('dci', callback=dci, filters=Filters.private))
