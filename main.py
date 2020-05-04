@@ -260,10 +260,17 @@ def cards(update: Update, context: CallbackContext):
         img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
                               + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
                               + ":no_entry: " + legal_in, use_aliases=True)
-        button_list = [InlineKeyboardButton("Edhrec", url=card.related_uris().get("edhrec")),
-                       InlineKeyboardButton("Gatherer", url=card.related_uris().get("gatherer")),
-                       InlineKeyboardButton("Top8", url=card.related_uris().get("mtgtop8")),
-                       InlineKeyboardButton("Scryfall", url=card.scryfall_uri())]
+
+        button_list = []
+
+        if card.related_uris().get("edhrec") is not None:
+            button_list.append(InlineKeyboardButton("Edhrec", url=card.related_uris().get("edhrec")))
+        if card.related_uris().get("gatherer") is not None:
+            button_list.append(InlineKeyboardButton("Gatherer", url=card.related_uris().get("gatherer")))
+        if card.related_uris().get("mtgtop8") is not None:
+            button_list.append(InlineKeyboardButton("Top8", url=card.related_uris().get("mtgtop8")))
+        button_list.append(InlineKeyboardButton("Scryfall", url=card.scryfall_uri()))
+
         reply_markup = InlineKeyboardMarkup(util.build_menu(button_list, n_cols=2))
         context.bot.send_photo(chat_id=update.message.chat_id, photo=card.image_uris(0, image_type="normal"),
                                caption=img_caption, parse_mode=telegram.ParseMode.MARKDOWN,
