@@ -1,8 +1,9 @@
 import time, logging, strings
 
+logger = logging.getLogger(__name__)
 
 class MWT(object):
-    """Memoize With Timeout"""
+    """Memorize With Timeout"""
     _caches = {}
     _timeouts = {}
 
@@ -27,12 +28,12 @@ class MWT(object):
             key = (args, tuple(kw))
             try:
                 v = self.cache[key]
-                logging.info(strings.Log.cached)
+                logger.info(strings.Log.cached)
                 if (time.time() - v[1]) > self.timeout:
                     raise KeyError
             except KeyError:
-                logging.info(strings.Log.new_cache)
-                v = self.cache[key] = f(*args,**kwargs),time.time()
+                logger.info(strings.Log.new_cache)
+                v = self.cache[key] = f(*args, **kwargs), time.time()
             return v[0]
         func.func_name = f.__name__
 

@@ -49,6 +49,20 @@ class Round(Model):
         database = db
 
 
+class Code(Model):
+    code_id = IntegerField(primary_key=True)
+    code = CharField(null=True)     # actual code
+    type = CharField(null=True)     # fnm, draft, constructed, ...
+    date_insert = DateTimeField(default=datetime.date.today())  # when the code is uploaded
+    date_expire = DateTimeField(default=datetime.date.today() + datetime.timedelta(days=2))  # when this code will expire
+    expired = BooleanField(default=False)   # either a claimed or an expired code
+    password = BooleanField(default=False)  # a specific word to get this code
+    infos = CharField(null=True)  # further infos about this code
+
+    class Meta:
+        database = db
+
+
 class Feed(Model):
     feed_id = CharField(primary_key=True)
     date = DateTimeField(default=datetime.datetime.today())

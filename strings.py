@@ -1,9 +1,8 @@
 class Global:
     user_not_exist = "you don't exist in my database. Start me in your LGS group\n"
     user_already_exist = "you already exist in my database"
-    welcome = "welcome, fellow planeswalker! You are now registered in my book of spells.\n" \
-              "If you need anything, you can ask me help using `/help` via pvt.\n" \
-               "Oh, by the way, this group ID is {}. Use it to set up RSS feeds!"
+    welcome_message = "Hello {} and welcome in our group! :smile:\n_Have fun!_"
+    format_banlist = "Click here to go to the official banlist page"
 
 
 class Friendlist:
@@ -32,11 +31,15 @@ class Arena:
 
 class Start:
     start_pvt = "You are successfully registered on this bot :)\n"
-    start_id = "your telegram ID is `{}` and this group id is {}"
+    start_id = "your telegram ID is `{}` and this group id is `{}`"
+    welcome = "welcome, fellow planeswalker! You are now registered in my book of spells.\n" \
+              "If you need anything, you can ask me help using `/help` via pvt.\n" \
+              "Oh, by the way, this group ID is {}. Use it to set up RSS feeds!"
 
 
 class Card:
     card_not_found = "No card found with name _{}_"
+    card_autocorrect = "Maybe you did a typo or the query is too broad.\nDid you mean...?\n\n{}"
     card_legal = "legal everywhere"
     card_unavailable = "N.A."
     card_ruling_unavailable = "no rules available for this card"
@@ -61,7 +64,9 @@ class Help:
                 "`[[cardname]]` - search for the card named `cardname` on scryfall. Also available via pvt.\n"\
                 "`((cardname))` - search for rulings related to the card named `cardname`. Also available via pvt.'\n" \
                 "`/status` - check all MTGA servers if are operational or under maintenance\n" \
-                "`/friendlist` - get the friendlist\n" \
+                "`/friendlist` - get the friendlist.\n" \
+                "`/rotation` - check which sets are rotating. Also available via pvt.\n" \
+                "`/banlist` - get the link to visit the official banlist page. Also available via pvt.\n" \
                 "`/social` - get a list with all the social links for this community. Also available via pvt.\n"
 
 
