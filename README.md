@@ -8,7 +8,9 @@ Up to now, this bot can:
 - store MTG:Arena usernames to challenge your friends
 - direct linking to [planeswalker points](https://www.wizards.com/magic/planeswalkerpoints) based on your DCI number
 - read rss feeds from a custom list of websites and post news on your group or even a channel connected to your discussion group
-- check mtg arena server status page
+- check mtg arena server [status page](https://magicthegatheringarena.statuspage.io/)
+- direct link to [banned and restricted](https://magic.wizards.com/game-info/gameplay/rules-and-formats/banned-restricted) official page
+- check [which expansions are in standard and which are rotating](https://whatsinstandard.com)
 - send a message with all the links to all your community socials
 
 ### Some examples...
@@ -30,15 +32,9 @@ This bot runs with:
 - requests and beautifulsoup4 (to fetch data from mtga server status website)
 
 ## Further improvements
-- handle FNM subscriptions
+- handle FNM codes automagically
 - auto sync with your LGS events posted on facebook
 - language localisation
-
-the following improvements are supposed to be implemented with Flask, maybe as a companion app:
-
-- internal leaderboard to handle tournaments
-- event creation
-- match tracker for each event
 
 I can't provide any ETA because I'm working on this project during my free time
 
