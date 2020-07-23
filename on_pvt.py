@@ -1,6 +1,5 @@
-import telegram, tables, strings, util
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram import ChatAction
+import tables, strings, util, telegram
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ChatAction
 from peewee import *
 from emoji import emojize
 from telegram.ext import CallbackContext
