@@ -1,7 +1,7 @@
 import telegram
 
 from config import config
-import feedparser, tables, datetime
+import feedparser, tables
 import asyncio
 import logging
 import datetime
