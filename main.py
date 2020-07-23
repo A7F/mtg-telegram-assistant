@@ -38,11 +38,9 @@ def error(update, context):
 def inline(update: Update, context: CallbackContext):
     try:
         user = tables.User.get(tables.User.user_id == update.inline_query.from_user.id)
-        pw_url = "https://www.wizards.com/Magic/PlaneswalkerPoints/"
         text = strings.Inline.player_card_text.format(user.name if not None else "", user.user_id,
                                                       user.dci if not None else "",
-                                                      user.arena if not None else "",
-                                                      pw_url + str(user.dci) if not None else pw_url)
+                                                      user.arena if not None else "")
     except DoesNotExist:
         text = strings.Global.user_not_exist
 

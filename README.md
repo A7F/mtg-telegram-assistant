@@ -1,4 +1,4 @@
-![Python version](https://img.shields.io/badge/Python-v3.6-blue.svg)
+![Python version](https://img.shields.io/badge/Python-v3.8-blue.svg)
 
 ## What can this bot do?
 Up to now, this bot can:
@@ -6,7 +6,6 @@ Up to now, this bot can:
 - get card rulings, pricing and legalities
 - store DCI numbers for each player
 - store MTG:Arena usernames to challenge your friends
-- direct linking to [planeswalker points](https://www.wizards.com/magic/planeswalkerpoints) based on your DCI number
 - read rss feeds from a custom list of websites and post news on your group or even a channel connected to your discussion group
 - check mtg arena server [status page](https://magicthegatheringarena.statuspage.io/)
 - direct link to [banned and restricted](https://magic.wizards.com/game-info/gameplay/rules-and-formats/banned-restricted) official page
