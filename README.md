@@ -31,6 +31,7 @@ This bot runs with:
 - [emoji](https://github.com/carpedm20/emoji) (because emojis makes messages waay more fancy!)
 - requests and beautifulsoup4 (to fetch data from mtga server status website)
 
+However you don't have to install all of them manually because I put everything in the requirements file! Visit the wiki if you don't know how to use it ;)
 ## Further improvements
 - handle FNM codes automagically
 - auto sync with your LGS events posted on facebook
