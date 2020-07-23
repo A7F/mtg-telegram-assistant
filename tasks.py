@@ -3,11 +3,17 @@ import telegram
 from config import config
 import feedparser, tables, datetime
 import asyncio
+import logging
+import datetime
+
+logger = logging.getLogger(__name__)
 
 
 async def check_rss(updater):
     urls = config["rss"]["links"]
     limit = config["rss"]["limit"]
+    date_3_days_ago = datetime.date.today() - datetime.timedelta(days=3)
+    deleted = tables.Feed.delete().where(tables.Feed.date < date_3_days_ago).execute()
     while True:
         for url in urls:
             feed = feedparser.parse(url)
