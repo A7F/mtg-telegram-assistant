@@ -3,6 +3,7 @@
     "cli_mode": true,
     "group_id": 0,
     "channel_id": "@yourchannel",
+    "welcome": false,
     "social": {
         "twitter": "insert your twitter link here",
         "facebook": "same thing but for facebook",
@@ -21,7 +22,7 @@
     },
     "rss": {
         "poll_time": 4600,
-        "post_to": "channel",
+        "post_to": "",
         "limit": 2,
         "links": [
             "https://www.clepshydra.it/feed/"
