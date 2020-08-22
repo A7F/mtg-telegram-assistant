@@ -31,6 +31,13 @@ def start_group(update: Update, context: CallbackContext):
         welcome = strings.Start.welcome.format(update.message.chat_id)
         context.bot.send_message(chat_id=update.message.chat_id, text=welcome, parse_mode=telegram.ParseMode.MARKDOWN)
 
+def social_pvt(update: Update, context: CallbackContext):
+    try:
+        tables.User.get(tables.User.user_id == update.message.from_user.id)
+        social(update,context)
+    except:
+        text = strings.Global.user_not_exist
+        context.bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 @MWT(timeout=60*15)
 def social(update: Update, context: CallbackContext):
