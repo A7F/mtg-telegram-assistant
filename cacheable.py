@@ -16,7 +16,7 @@ CACHED_LEGALITIES = {}
 @MWT(timeout=60*15)
 def build_banlist():
     url = "https://magic.wizards.com/game-info/gameplay/rules-and-formats/banned-restricted"
-    text = f'[{strings.Global.format_banlist}]({url})'
+    text = '[{}]({})'.format(strings.Global.format_banlist,url)
     return text
 
 
