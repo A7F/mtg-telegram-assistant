@@ -40,7 +40,7 @@ def social(update: Update, context: CallbackContext):
 
         text += social_message
     else:
-        text = ":rocket: There is currently no social network related to our group. :rocket:"
+        text = strings.Help.no_social_links
     print(text)
     context.bot.send_message(chat_id=update.message.chat_id, text=emojize(text, use_aliases=True),
                              parse_mode=telegram.ParseMode.MARKDOWN,

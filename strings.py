@@ -47,6 +47,7 @@ class Card:
 
 class Help:
     social_links = ":rocket: Here are the links for everything related our group! :rocket:\n\n"
+    no_social_links = ":rocket: There is currently no social network related to our group. :rocket:"
     admin_help = "Well... there are no admin commands implemented up to now... Sorry!"
     user_help = "*Commands available via PVT (which is, in this chat):*\n\n" \
                 "_No parameter commands:_\n" \
