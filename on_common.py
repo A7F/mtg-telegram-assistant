@@ -70,7 +70,6 @@ def cards(update: Update, context: CallbackContext):
             time.sleep(0.04)
             continue
         else:
-            # img_caption = emojize(legal_text, use_aliases=True)
             if card.related_uris().get("edhrec") is not None:
                 button_list.append(InlineKeyboardButton("Edhrec", url=card.related_uris().get("edhrec")))
             if card.related_uris().get("mtgtop8") is not None:
@@ -90,6 +89,7 @@ def cards(update: Update, context: CallbackContext):
                                                                 header_buttons=header_list,
                                                                 footer_buttons=footer_list,
                                                                 n_cols=3))
+            print(card.image_uris(image_type="normal"))
             context.bot.send_photo(chat_id=update.message.chat_id,
                                    photo=card.image_uris(0, image_type="normal"),
                                    parse_mode=telegram.ParseMode.MARKDOWN,

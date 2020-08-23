@@ -5,7 +5,7 @@ from peewee import *
 from emoji import emojize
 from bs4 import BeautifulSoup
 from telegram.ext import CallbackContext
-from config import config
+from config import config, statuspage, headers
 from mwt import MWT
 
 logger = logging.getLogger(__name__)
@@ -60,7 +60,7 @@ def friend_list(update: Update, context: CallbackContext):
 
 @util.send_action(ChatAction.TYPING)
 def arena_status(update: Update, context: CallbackContext):
-    page = requests.get(config.statuspage, headers=config.headers)
+    page = requests.get(statuspage, headers=headers)
     soup = BeautifulSoup(page.content, 'html.parser')
 
     message = ":computer: "+strings.Arena.arena_status+" :computer:\n\n"
@@ -74,7 +74,7 @@ def arena_status(update: Update, context: CallbackContext):
         bar = foo.find('span', attrs={'class': ['name', 'component-status ']})
         message += ":white_check_mark: {} - {}\n".format(bar.text.strip(), strings.Arena.server_ok)
 
-    keyboard = [[InlineKeyboardButton(strings.Arena.goto_statuspage, url=config.statuspage)]]
+    keyboard = [[InlineKeyboardButton(strings.Arena.goto_statuspage, url=statuspage)]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     context.bot.send_message(chat_id=update.message.chat_id, text=emojize(message, use_aliases=True),
