@@ -31,19 +31,23 @@ def start_group(update: Update, context: CallbackContext):
         welcome = strings.Start.welcome.format(update.message.chat_id)
         context.bot.send_message(chat_id=update.message.chat_id, text=welcome, parse_mode=telegram.ParseMode.MARKDOWN)
 
+def social_pvt(update: Update, context: CallbackContext):
+    try:
+        tables.User.get(tables.User.user_id == update.message.from_user.id)
+        social(update,context)
+    except:
+        text = strings.Global.user_not_exist
+        context.bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
 
 @MWT(timeout=60*15)
 def social(update: Update, context: CallbackContext):
-    text = strings.Help.social_links
-    foo = "[Facebook]("+config["social"]["facebook"]+")\n"\
-          "[Twitter]("+config["social"]["twitter"]+")\n"\
-          "[Youtube]("+config["social"]["youtube"]+")\n"\
-        "[Instagram]("+config["social"]["instagram"]+")\n"\
-        "[Twitch]("+config["social"]["twitch"]+")\n"\
-        "[Telegram channel]("+config["social"]["channel"]+")\n"\
-        "[Discord]("+config["social"]["discord"]+")"
+    if config["social"]:
+        text = strings.Help.social_links
+        social_message = "\n".join("[{}]({})".format(key,config["social"][key]) for key in sorted(config["social"].keys()))
 
-    text = text + foo
+        text += social_message
+    else:
+        text = strings.Help.no_social_links
     print(text)
     context.bot.send_message(chat_id=update.message.chat_id, text=emojize(text, use_aliases=True),
                              parse_mode=telegram.ParseMode.MARKDOWN,
