@@ -27,7 +27,7 @@ def cards(update: Update, context: CallbackContext):
             if auto:
                 text = ""
                 for index, item in zip(range(5), auto.data()):
-                    text += f'`{item}`\n'
+                    text += '`{}`\n'.format(item)
                 context.bot.send_message(chat_id=update.message.chat_id,
                                          text=strings.Card.card_autocorrect.format(text),
                                          parse_mode=telegram.ParseMode.MARKDOWN)
@@ -50,13 +50,13 @@ def cards(update: Update, context: CallbackContext):
         else:
             footer_list.append(InlineKeyboardButton("Legalities", callback_data=card.name()))
             for v in legal_in:
-                legal_text += f':white_check_mark: {v}\n'
+                legal_text += ':white_check_mark: {}\n'.format(v)
             for v in banned_in:
-                legal_text += f':no_entry: {v}\n'
+                legal_text += ':no_entry: {}\n'.format(v)
             cacheable.CACHED_LEGALITIES.update({card.name(): legal_text})
 
-        eur = f'{card.prices(mode="eur")}€' if card.prices(mode="eur") is not None else "CardMarket"
-        usd = f'{card.prices(mode="usd")}€' if card.prices(mode="usd") is not None else "TCGPlayer"
+        eur = '{}€'.format(card.prices(mode="eur")) if card.prices(mode="eur") is not None else "CardMarket"
+        usd = '{}€'.format(card.prices(mode="usd")) if card.prices(mode="usd") is not None else "TCGPlayer"
         usd_link = card.purchase_uris().get("tcgplayer")
         eur_link = card.purchase_uris().get("cardmarket")
 
@@ -76,12 +76,12 @@ def cards(update: Update, context: CallbackContext):
                 button_list.append(InlineKeyboardButton("Top8", url=card.related_uris().get("mtgtop8")))
             button_list.append(InlineKeyboardButton("Scryfall", url=card.scryfall_uri()))
             if card.prices(mode="usd") is not None:
-                header_list.append(InlineKeyboardButton(f'{card.prices(mode="usd")}$',
+                header_list.append(InlineKeyboardButton('{}$'.format(card.prices(mode="usd")),
                                                         url=card.purchase_uris().get("tcgplayer")))
             else:
                 header_list.append(InlineKeyboardButton("TCGPlayer", url=usd_link))
             if card.prices(mode="eur") is not None:
-                header_list.append(InlineKeyboardButton(f'{card.prices(mode="eur")}€',
+                header_list.append(InlineKeyboardButton('{}€'.format(card.prices(mode="eur")),
                                                         url=card.purchase_uris().get("cardmarket")))
             else:
                 header_list.append(InlineKeyboardButton("MKM", url=eur_link))
@@ -168,9 +168,9 @@ def legalities(update: Update, context: CallbackContext):
             legal_text = strings.Card.card_legal
         else:
             for v in legal_in:
-                legal_text += f':white_check_mark: {v}\n'
+                legal_text += ':white_check_mark: {}\n'.format(v)
             for v in banned_in:
-                legal_text += f':no_entry: {v}\n'
+                legal_text += ':no_entry: {}\n'.format(v)
             cacheable.CACHED_LEGALITIES.update({card.name(): legal_text})
             context.bot.answer_callback_query(query.id,
                                               emojize(cacheable.CACHED_LEGALITIES[card_name], use_aliases=True),
