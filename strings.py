@@ -39,7 +39,7 @@ class Start:
 
 class Card:
     card_not_found = "No card found with name _{}_"
-    card_autocorrect = "Maybe you did a typo or the query is too broad.\nDid you mean...?\n\n{}"
+    card_autocorrect = "Maybe you made a typo or the query is too broad.\nDid you mean...?\n\n{}"
     card_legal = "legal everywhere"
     card_unavailable = "N.A."
     card_ruling_unavailable = "no rules available for this card"

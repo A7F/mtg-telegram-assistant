@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 def cards(update: Update, context: CallbackContext):
     match = re.findall(r'\[\[(.*?)\]\]', update.message.text)
     asyncio.set_event_loop(asyncio.new_event_loop())
+    is_flipcard = False
     photos = []
     button_list = []
     footer_list = []
@@ -24,7 +25,7 @@ def cards(update: Update, context: CallbackContext):
             card = scrython.cards.Named(fuzzy=name)
         except scrython.ScryfallError:
             auto = scrython.cards.Autocomplete(q=name, query=name)
-            if auto:
+            if len(auto.data()) > 0:
                 text = ""
                 for index, item in zip(range(5), auto.data()):
                     text += '`{}`\n'.format(item)
@@ -59,16 +60,31 @@ def cards(update: Update, context: CallbackContext):
         usd = '{}€'.format(card.prices(mode="usd")) if card.prices(mode="usd") is not None else "TCGPlayer"
         usd_link = card.purchase_uris().get("tcgplayer")
         eur_link = card.purchase_uris().get("cardmarket")
+        img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
+                              + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
+                              + legal_text, use_aliases=True)
 
-        if len(match) > 1:
-            img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
-                                  + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
-                                  + legal_text, use_aliases=True)
-            photos.append(InputMediaPhoto(media=card.image_uris(0, image_type="normal"),
-                                          caption=img_caption,
-                                          parse_mode=telegram.ParseMode.MARKDOWN))
-            time.sleep(0.04)
-            continue
+        try:
+            card.card_faces()
+            is_flipcard = True
+        except KeyError:
+            is_flipcard = False
+            pass
+
+        if len(match) > 1 or is_flipcard:
+            if is_flipcard:
+                photos.append(InputMediaPhoto(media=card.card_faces()[0]['image_uris']['normal'],
+                                              caption=img_caption,
+                                              parse_mode=telegram.ParseMode.MARKDOWN))
+                photos.append(InputMediaPhoto(media=card.card_faces()[1]['image_uris']['normal'],
+                                              caption=img_caption,
+                                              parse_mode=telegram.ParseMode.MARKDOWN))
+            else:
+                photos.append(InputMediaPhoto(media=card.image_uris(0, image_type="normal"),
+                                              caption=img_caption,
+                                              parse_mode=telegram.ParseMode.MARKDOWN))
+                time.sleep(0.04)
+                continue
         else:
             if card.related_uris().get("edhrec") is not None:
                 button_list.append(InlineKeyboardButton("Edhrec", url=card.related_uris().get("edhrec")))
@@ -89,14 +105,13 @@ def cards(update: Update, context: CallbackContext):
                                                                 header_buttons=header_list,
                                                                 footer_buttons=footer_list,
                                                                 n_cols=3))
-            print(card.image_uris(image_type="normal"))
             context.bot.send_photo(chat_id=update.message.chat_id,
                                    photo=card.image_uris(0, image_type="normal"),
                                    parse_mode=telegram.ParseMode.MARKDOWN,
                                    reply_markup=reply_markup,
                                    reply_to_message_id=update.message.message_id)
             return
-    if len(match) > 1:
+    if len(match) > 1 or is_flipcard:
         context.bot.send_media_group(chat_id=update.message.chat_id,
                                      media=photos,
                                      reply_to_message_id=update.message.message_id,
