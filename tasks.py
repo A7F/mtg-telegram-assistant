@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 async def check_rss(updater):
     urls = config["rss"]["links"]
     limit = config["rss"]["limit"]
-    date_3_days_ago = datetime.date.today() - datetime.timedelta(days=3)
+    date_3_days_ago = datetime.date.today() - datetime.timedelta(days=config["rss"]["days_until_delete"])
     deleted = tables.Feed.delete().where(tables.Feed.date < date_3_days_ago).execute()
     while True:
         for url in urls:

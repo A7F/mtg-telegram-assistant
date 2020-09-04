@@ -24,6 +24,7 @@
         "poll_time": 4600,
         "post_to": "",
         "limit": 2,
+        "days_until_delete": 30,
         "links": [
             "https://www.clepshydra.it/feed/"
         ]
