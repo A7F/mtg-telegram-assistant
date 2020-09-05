@@ -77,6 +77,10 @@ class Log:
     database_ok = "database generated."
     cached = "using cached value"
     new_cache = "new value cached"
+    log_result_parsing = ":date: Today is {}\n\n" \
+                         ":chart_with_upwards_trend: Vault progress: {}%" \
+                         "\n:gem: {} gems\n" \
+                         ":moneybag: {}G"
 
 
 class Inline:

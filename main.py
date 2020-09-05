@@ -72,6 +72,7 @@ dispatcher.add_handler(CommandHandler('dci', callback=dci, filters=Filters.priva
 dispatcher.add_handler(CommandHandler('arena', callback=arena, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('name', callback=name, filters=Filters.private))
 dispatcher.add_handler(CommandHandler('help', callback=help_pvt, filters=Filters.private))
+dispatcher.add_handler(MessageHandler(Filters.private and Filters.document, logparser))
 dispatcher.add_handler(MessageHandler(Filters.regex('\[\[(.*?)\]\]'), cards))
 dispatcher.add_handler(MessageHandler(Filters.regex('\(\((.*?)\)\)'), rulings))
 dispatcher.add_handler(MessageHandler(Filters.text & Filters.group, register_users))

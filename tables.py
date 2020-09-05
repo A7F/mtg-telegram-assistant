@@ -4,6 +4,7 @@ from config import config
 
 db = SqliteDatabase(config["database"]["path"])
 
+
 class BaseModel(Model):
     class Meta:
         database = db
