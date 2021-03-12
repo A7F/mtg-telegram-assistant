@@ -73,6 +73,11 @@ def arena_status(update: Update, context: CallbackContext):
         bar = foo.find('span', attrs={'class': ['name', 'component-status ']})
         message += ":x: {} - {}\n".format(bar.text.strip(), strings.Arena.server_maintenance)
 
+    # search all services under partial outage
+    for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-orange'}):
+        bar = foo.find('span', attrs={'class': ['name', 'component-status ']})
+        message += ":warning: {} - {}\n".format(bar.text.strip(), strings.Arena.server_outage)
+
     # search all operational services
     for foo in soup.find_all('div', attrs={'class': 'component-inner-container status-green'}):
         bar = foo.find('span', attrs={'class': ['name', 'component-status ']})

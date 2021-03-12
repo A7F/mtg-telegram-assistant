@@ -26,6 +26,7 @@ class Arena:
     arena_status = "_MTGA state of servers_"
     server_ok = "operational"
     server_maintenance = "under maintenance"
+    server_outage = "partial outage"
     goto_statuspage = "See more..."
 
 
