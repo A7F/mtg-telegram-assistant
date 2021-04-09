@@ -65,7 +65,7 @@ def cards(update: Update, context: CallbackContext):
                               + legal_text, use_aliases=True)
 
         try:
-            card.card_faces()
+            card.card_faces()[0]['image_uris']
             is_flipcard = True
         except KeyError:
             is_flipcard = False
