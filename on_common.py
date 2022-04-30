@@ -57,12 +57,15 @@ def cards(update: Update, context: CallbackContext):
             cacheable.CACHED_LEGALITIES.update({card.name(): legal_text})
 
         eur = '{}€'.format(card.prices(mode="eur")) if card.prices(mode="eur") is not None else "CardMarket"
-        usd = '{}€'.format(card.prices(mode="usd")) if card.prices(mode="usd") is not None else "TCGPlayer"
-        usd_link = card.purchase_uris().get("tcgplayer")
-        eur_link = card.purchase_uris().get("cardmarket")
-        img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
-                              + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
-                              + legal_text, use_aliases=True)
+        usd = '{}$'.format(card.prices(mode="usd")) if card.prices(mode="usd") is not None else "TCGPlayer"
+        try:
+            usd_link = card.purchase_uris().get("tcgplayer")
+            eur_link = card.purchase_uris().get("cardmarket")
+            img_caption = emojize(":moneybag: [" + eur + "]" + "(" + eur_link + ")" + " | "
+                                  + "[" + usd + "]" + "(" + usd_link + ")" + "\n"
+                                  + legal_text, use_aliases=True)
+        except KeyError:
+            img_caption = emojize(legal_text, use_aliases=True)
 
         try:
             card.card_faces()[0]['image_uris']
@@ -95,12 +98,14 @@ def cards(update: Update, context: CallbackContext):
                 header_list.append(InlineKeyboardButton('{}$'.format(card.prices(mode="usd")),
                                                         url=card.purchase_uris().get("tcgplayer")))
             else:
-                header_list.append(InlineKeyboardButton("TCGPlayer", url=usd_link))
+                # header_list.append(InlineKeyboardButton("TCGPlayer", url=usd_link))
+                pass
             if card.prices(mode="eur") is not None:
                 header_list.append(InlineKeyboardButton('{}€'.format(card.prices(mode="eur")),
                                                         url=card.purchase_uris().get("cardmarket")))
             else:
-                header_list.append(InlineKeyboardButton("MKM", url=eur_link))
+                # header_list.append(InlineKeyboardButton("MKM", url=eur_link))
+                pass
             reply_markup = InlineKeyboardMarkup(util.build_menu(button_list,
                                                                 header_buttons=header_list,
                                                                 footer_buttons=footer_list,
