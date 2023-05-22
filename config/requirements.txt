@@ -1,4 +1,4 @@
-requests==2.24.0
+requests==2.31.0
 feedparser==5.2.1
 asyncio==3.4.3
 peewee==3.13.3
